@@ -1,0 +1,14 @@
+# Dépendances (régénérées par composer install / npm install)
+/vendor
+/node_modules
+
+# Secrets : accès à la base de données
+.env
+
+# Vidéos envoyées par les utilisateurs
+/videos/*
+!/videos/.gitkeep
+
+# Documentation Doxygen
+/docs
+
