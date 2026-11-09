@@ -10,7 +10,7 @@
  */
 
 //Ajout du code commun à toutes les pages
-require_once 'include.php';
+require_once __DIR__ . '/include.php';
 
 try {
     if (isset($_GET['controleur'])) {
