@@ -14,7 +14,20 @@ class VideoDAO{
         $req = $this->bd->prepare($sql);
         $req->execute();
 
-        return $req->fetch(PDO::FETCH_ASSOC);
+        $donnees = $req->fetch(PDO::FETCH_ASSOC);
+
+        if (!$donnees) {
+            return null;
+        }
+
+        return new Video(
+            $donnees["id"],
+            $donnees["titre"],
+            $donnees["description"],
+            $donnees["chemin_video"],
+            $donnees["taille_fichier"],
+            $donnees["id_auteur"]
+        );
     }
 }
 

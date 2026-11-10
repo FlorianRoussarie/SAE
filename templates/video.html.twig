@@ -1,11 +1,11 @@
-{% if video %}
+{% if video is not null %}
+    {{ dump( video.chemin_video ) }}
     <div class="video-container">
-        <h2>{{ video.titre }}</h2>
+        <h2>{{ video.Titre }}</h2>
+        <p>{{ video.Description }}</p>
 
-        <p>{{ video.description }}</p>
-
-        <video controls width="640">
-            <source src="{{ video.chemin_video }}" type="video/mp4">
+        <video controls width="640" preload="metadata">
+            <source src="{{ video.cheminVideo }}" type="video/mp4">
             Votre navigateur ne supporte pas la lecture vidéo.
         </video>
     </div>
