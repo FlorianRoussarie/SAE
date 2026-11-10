@@ -5,7 +5,7 @@ class Video{
     private $id;
     private $titre;
     private $description;
-    private $chemin_fichier;
+    private $chemin_video;
     private $taille_fichier;
     private $id_auteur;
 
@@ -14,7 +14,7 @@ class Video{
         $this->id = $id;
         $this->titre = $titre;
         $this->description = $description;
-        $this->chemin_fichier = $chemin_fichier;
+        $this->chemin_video = $chemin_video;
         $this->taille_fichier = $taille_fichier;
         $this->id_auteur = $id_auteur;
     }
@@ -32,8 +32,8 @@ class Video{
         return $this->description;
     }
 
-    public function getCheminFichier(): string {
-        return $this->chemin_fichier;
+    public function getCheminVideo(): string {
+        return $this->chemin_video;
     }
 
     public function getTailleFichier(): int {
