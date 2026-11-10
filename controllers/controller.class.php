@@ -36,6 +36,20 @@ class Controller
         return $this->$methode();
     }
 
+    /**
+     * @brief Réserve une page aux comptes connectés (US02, tâche 0211).
+     * @details À appeler en première ligne d'une méthode de contrôleur protégée :
+     * `$this->verifierConnexion();`. Sans compte connecté, redirige vers le formulaire de connexion.
+     * @return void
+     */
+    protected function verifierConnexion(): void
+    {
+        if (!isset($_SESSION['id_compte'])) {
+            header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+            exit;
+        }
+    }
+
     /** @brief Retourne la connexion transmise aux DAO. @return PDO|null Connexion. */
     public function getPdo(): ?PDO
     {
