@@ -1,12 +1,13 @@
 <?php
 class CompteDAO{
     private $pdo;
-    public fuunction __construct($pdo){
+    public function __construct($pdo){
         $this->pdo=$pdo;
     }
+    /*Bannit un compte en modifiant son statut a 'banni' dans la base de données via un baouton '*/
     public function bannir($id){
-        $sql="UPDATE Compte SET statut ='banni'WHERE id= :id";
+        $sql="UPDATE Compte SET statut ='banni'WHERE id= ?";
         $stmt =$this->pdo->prepare($sql);
-        $stmt->execute(['id'=>$id]);
+        return $stmt->execute([$id]);
     }
 }
