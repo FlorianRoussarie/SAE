@@ -21,7 +21,7 @@ class Video{
         $this->id = $id;
         $this->titre = $titre;
         $this->description = $description;
-        $this->chemin_video = $chemin_video;
+        $this->chemin_video = $chemin_fichier;
         $this->taille_fichier = $taille_fichier;
         $this->id_auteur = $id_auteur;
     }
