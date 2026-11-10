@@ -1,0 +1,17 @@
+
+{% if video is not null %}
+    <div class="video-container">
+
+        <h2>{{ video.titre }}</h2>
+
+        <p>{{ video.description }}</p>
+
+        <video controls width="640" preload="metadata">
+            <source src="{{ video.chemin_fichier }}" type="video/mp4">
+            Votre navigateur ne supporte pas la lecture vidéo.
+        </video>
+
+    </div>
+{% else %}
+    <p>Aucune vidéo disponible pour le moment.</p>
+{% endif %}

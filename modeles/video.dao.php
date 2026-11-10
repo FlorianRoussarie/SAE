@@ -8,6 +8,7 @@ class VideoDAO{
         $this->bd = $bd;
     }
 
+    //Récupérer une vidéo aléatoire
     public function getVideoAleatoire()
     {
         $sql = "SELECT * FROM " . PREFIXE_TABLE . "Video ORDER BY RAND() LIMIT 1";
