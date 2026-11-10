@@ -8,3 +8,5 @@ $twig->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Europe/P
 $twig->addExtension(new \Twig\Extension\DebugExtension());
 $twig->addExtension(new IntlExtension());
 $twig->addGlobal('config', Config::getConfig());
+// Session lue par base_template (compte connecté dans la navbar, US02). session_start() est appelé avant, dans include.php.
+$twig->addGlobal('session', $_SESSION);
