@@ -12,7 +12,7 @@
 session_start();
 
 //Ajout de l'autoload de composer
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 //Chargement des secrets depuis le fichier .env (accès à la base de données)
 //Les valeurs sont ensuite disponibles dans $_ENV['DB_HOST'], $_ENV['DB_NAME']...
@@ -25,26 +25,26 @@ try {
 }
 
 //Chargement des paramètres de l'application (config/config.yml) via le Singleton Config
-require_once 'modeles/config.class.php';
+require_once __DIR__ . '/modeles/config.class.php';
 
 //Préfixe des tables lu dans config.yml, exposé en constante pour écrire les requêtes
 //des DAO comme dans le cours : "SELECT ... FROM " . PREFIXE_TABLE . "video"
 define('PREFIXE_TABLE', Config::getConfig()['db']['prefixe_table']);
 
 //Ajout du code pour initialiser twig
-require_once 'config/twig.php';
+require_once __DIR__ . '/config/twig.php';
 
 //Ajout du modèle qui gère la connexion mysql
-require_once 'modeles/bd.class.php';
+require_once __DIR__ . '/modeles/bd.class.php';
 
 //Ajout des contrôleurs
-require_once 'controllers/controller.class.php';
-require_once 'controllers/controller_factory.class.php';
-require_once 'controllers/controller_compte.class.php';
-require_once 'controllers/controller_video.class.php';
+require_once __DIR__ . '/controllers/controller.class.php';
+require_once __DIR__ . '/controllers/controller_factory.class.php';
+require_once __DIR__ . '/controllers/controller_compte.class.php';
+require_once __DIR__ . '/controllers/controller_video.class.php';
 
 //Ajout des modèles
-require_once 'modeles/compte.class.php';
-require_once 'modeles/compte.dao.php';
-require_once 'modeles/video.class.php';
-require_once 'modeles/video.dao.php';
+require_once __DIR__ . '/modeles/compte.class.php';
+require_once __DIR__ . '/modeles/compte.dao.php';
+require_once __DIR__ . '/modeles/video.class.php';
+require_once __DIR__ . '/modeles/video.dao.php';
