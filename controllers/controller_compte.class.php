@@ -6,10 +6,8 @@ class ControllerCompte extends Controller  {
     //Permet de bannir un utilisateur ciblé "
     public function bannir() {
         //Vérifiaction que l'utilisateur est bien un administrateur
-        $estAdmin =0;
-        if(!isset($_SESSION['est_admin'])){
-            $estAdmin= $_SESSION['est_admin'];
-        }
+        $estAdmin =isset($_SESSION['est_admin'])? $_SESSION['est_admin']:0;
+        
         if ($estAdmin!=1){
             throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
         }
@@ -20,13 +18,13 @@ class ControllerCompte extends Controller  {
         }
         if($id!== null){
             if(is_numeric($id)){
-            $dao =new CompteDAO(BD:: getInstance());
-            $dao->bannir($id);  
+            $managerCompte =new CompteDAO($this->getPdo());
+            $managerCompte->bannir($id);  
             }
            
         }
         // Redirige vers la liste des compte après le signalement
-         header('Location: index.php?controlles=compteaction=lister');
+         header('Location: index.php?controller=compte&action=lister');
             exit();
     }
 }

@@ -10,8 +10,9 @@ class Compte{
     private $date_naissance;
     private $adresse;
     private $statut;
+    private $est_admin;
 
-    public function __construct($id,$pseudo,$prenom,$nom,$adresse_mail,$telephone,$mdp,$date_naissance,$adresse,$statut){
+    public function __construct($id,$pseudo,$prenom,$nom,$adresse_mail,$telephone,$mdp,$date_naissance,$adresse,$statut,$est_admin){
         $this->id=$id;
         $this->pseudo=$pseudo;
         $this->prenom=$prenom;
@@ -50,7 +51,7 @@ class Compte{
     }
 
     public function getAdresseMail(){
-        return $this->adressemail;
+        return $this->adresse_mail;
     }
     public function setAdresseMail($adresse_mail){
         $this->adresse_mail=$adresse_mail;
@@ -89,5 +90,11 @@ class Compte{
     }
     public function setStatut($statut){
         $this->statut=$statut;
+    }
+     public function getEst_admin(){
+        return $this->est_admin;
+    }
+    public function setEstadmin($est_admin){
+        $this->est_admin=$est_admin;
     }
 }
