@@ -31,9 +31,8 @@ class ControllerVideo extends Controller{
         $video = $this->videoDAO->getVideoAleatoire();
 
         // Affichage de la vue
-        echo $this->twig->render('video.html.twig',[
-            'video'=> $video
-        ]);
+        $template = $this->getTwig()->load('video.html.twig');
+        echo $template->render(array('video'=> $video));
     }
 }
 

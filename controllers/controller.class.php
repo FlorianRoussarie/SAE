@@ -4,8 +4,8 @@
  * @brief Classe mère de tous les contrôleurs.
  */
 class Controller{
-    protected \Twig\Environment $twig;
-    protected \Twig\Loader\FilesystemLoader $loader;
+    private \Twig\Environment $twig;
+    private \Twig\Loader\FilesystemLoader $loader;
 
     /**
      * @brief Constructeur de contrôleur.
