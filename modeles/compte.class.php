@@ -23,6 +23,7 @@ class Compte{
         $this->date_naissance=$date_naissance;
         $this->adresse=$adresse;
         $this->statut=$statut;
+        $this->est_admin=$est_admin;
     }
     //On n'a pas mis de setId parce que l'id s'auto incrémente 
     public function getId(){

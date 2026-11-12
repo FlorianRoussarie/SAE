@@ -5,26 +5,31 @@ class ControllerCompte extends Controller  {
     }
     //Permet de bannir un utilisateur ciblé "
     public function bannir() {
+        if(($_SERVER['REQUEST_METHOD']??'')!== 'POST'){
+            throw new Exception('Méthode non autorisé');
+        }
         //Vérifiaction que l'utilisateur est bien un administrateur
-        $estAdmin =isset($_SESSION['est_admin'])? $_SESSION['est_admin']:0;
-        
-        if ($estAdmin!=1){
-            throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
-        }
-        //Reécuparation de l'ID de l'utilisateur
-        $id=null;
-        if (isset($_GET['id'])) {
-            $id=$_GET['id'];
-        }
-        if($id!== null){
-            if(is_numeric($id)){
-            $managerCompte =new CompteDAO($this->getPdo());
-            $managerCompte->bannir($id);  
-            }
+        if(!isset($_SESSION['id_compte'])
+            ||(int) ($_SESSION['est_admin']??0) !==1){
+         throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
+         }
+    
            
         }
+        //Reécuparation de l'ID de l'utilisateur
+        $id=filter_input(
+            INPUT_POST,
+            'id',
+            FILTER_VALIDATE_INT,
+            array('options' => array('min_range'=> 1))
+        );
+        if($id==null|| $id == false){
+            throw new Exception("Identifiant de compte invalide."); 
+        }
+        $managerCompte =new CompteDAO($this->getPdo());
+        $managerCompte->bannir($id);  
         // Redirige vers la liste des compte après le signalement
-         header('Location: index.php?controller=compte&action=lister');
+         header('Location: index.php?controleur=compte&methode=lister');
             exit();
     }
-}
+
