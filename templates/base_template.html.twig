@@ -12,14 +12,14 @@
         <nav class="navbar bg-body-tertiary" aria-label="Navigation principale">
             <div class="container-fluid">
                 <span class="navbar-brand">SHARE</span>
-                {% if session.id_compte is defined %}
-                    <span class="navbar-text">Connecté : {{ session.pseudo }}</span>
-                {% else %}
-                    <a class="nav-link{% if menu == 'inscription' %} active{% endif %}"
-                       href="index.php?controleur=compte&amp;methode=afficherFormulaireInscription">Créer un compte</a>
+                <div class="navbar-nav flex-row gap-3">
+                    {% if not connecte|default(false) %}
+                        <a class="nav-link{% if menu == 'inscription' %} active{% endif %}"
+                           href="index.php?controleur=compte&amp;methode=afficherFormulaireInscription">Créer un compte</a>
+                    {% endif %}
                     <a class="nav-link{% if menu == 'connexion' %} active{% endif %}"
-                       href="index.php?controleur=compte&amp;methode=afficherFormulaireConnexion">Se connecter</a>
-                {% endif %}
+                       href="index.php?controleur=compte&amp;methode=afficherFormulaireConnexion">Connexion</a>
+                </div>
             </div>
         </nav>
     </header>

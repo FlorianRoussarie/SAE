@@ -2,6 +2,9 @@
 /** @brief Affichage et traitement de l'inscription (US01) et de la connexion (US02) des comptes SHARE. */
 class ControllerCompte extends Controller
 {
+    private const MOTIF_NOM = '\p{L}[\p{L}\p{M}]*(?:(?:[ \'’]|-{1,2})\p{L}[\p{L}\p{M}]*)*';
+    private const MOTIF_TELEPHONE = '(?:0[1-9](?:[ .\-]?[0-9]){8}|\+[1-9](?:[ .\-]?[0-9]){7,14})';
+
     /**
      * @brief Initialise le contrôleur selon l'ordre des paramètres du cours.
      * @param \Twig\Environment $twig Environnement Twig.
@@ -20,6 +23,11 @@ class ControllerCompte extends Controller
      */
     public function afficherFormulaireInscription(array $erreurs = array(), array $valeurs = array()): void
     {
+        if (isset($_SESSION['id_compte'])) {
+            header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+            exit;
+        }
+
         $succes = $_SESSION['inscription_reussie'] ?? false;
         unset($_SESSION['inscription_reussie']);
         $template = $this->getTwig()->load('inscription.html.twig');
@@ -27,7 +35,10 @@ class ControllerCompte extends Controller
             'menu' => 'inscription',
             'erreurs' => $erreurs,
             'valeurs' => $valeurs,
-            'succes' => $succes
+            'succes' => $succes,
+            'motifNom' => self::MOTIF_NOM,
+            'motifTelephone' => self::MOTIF_TELEPHONE,
+            'dateNaissanceMax' => $this->getDateNaissanceMax()
         ));
     }
 
@@ -37,6 +48,11 @@ class ControllerCompte extends Controller
      */
     public function traiterFormulaireInscription(): void
     {
+        if (isset($_SESSION['id_compte'])) {
+            header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+            exit;
+        }
+
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             header('Location: index.php?controleur=compte&methode=afficherFormulaireInscription');
             exit;
@@ -70,6 +86,18 @@ class ControllerCompte extends Controller
             }
         }
 
+        foreach (array('nom', 'prenom') as $champ) {
+            if (!isset($erreurs[$champ])
+                && preg_match('/\A' . self::MOTIF_NOM . '\z/u', $valeurs[$champ]) !== 1) {
+                $erreurs[$champ] = $champs[$champ][0] . ' : utilisez des lettres, avec des espaces, apostrophes ou traits d’union si nécessaire.';
+            }
+        }
+
+        if (!isset($erreurs['telephone']) && $valeurs['telephone'] !== ''
+            && preg_match('/\A' . self::MOTIF_TELEPHONE . '\z/', $valeurs['telephone']) !== 1) {
+            $erreurs['telephone'] = 'Saisissez un numéro de téléphone valide, par exemple 06 12 34 56 78 ou +33 6 12 34 56 78.';
+        }
+
         if (!isset($erreurs['adresse_mail'])
             && (filter_var($valeurs['adresse_mail'], FILTER_VALIDATE_EMAIL) === false
                 || preg_match('/\A[^@\s]+@[^@\s]+\.[A-Za-z]{2,}\z/', $valeurs['adresse_mail']) !== 1)) {
@@ -82,6 +110,8 @@ class ControllerCompte extends Controller
                 || !checkdate((int) $parties[2], (int) $parties[3], (int) $parties[1])
                 || $date > (new DateTimeImmutable('today', new DateTimeZone('Europe/Paris')))->format('Y-m-d')) {
                 $erreurs['date_naissance'] = 'Saisissez une date de naissance valide, qui ne soit pas dans le futur.';
+            } elseif ($date > $this->getDateNaissanceMax()) {
+                $erreurs['date_naissance'] = 'Vous devez avoir au moins 13 ans pour vous inscrire.';
             }
         }
 
