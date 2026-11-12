@@ -1,0 +1,38 @@
+{% extends 'base_template.html.twig' %}
+    {% block title %}Liste des signalements - {{ constant('WEBSITE_TITLE')}} {% endblock %}
+
+{% block content %}
+    <main>
+        <h1>Signalements</h1>
+        <table id="matable" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Signalement n°</th>
+                    <th>Cible</th>
+                    <th>Raison</th>
+                    <th>Vidéo</th>
+                    <th>Auteur</th>
+                    <th>Statut</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for signalement in signalements %}           
+
+                    <tr>
+                        <td><a href="index.php?controleur=signalement&methode=lister&id={{signalement.id}}">{{signalement.id}}</a></td>
+                        <td>{{signalement.id_cible}}</td>
+                        <td>{{signalement.raison}}</td>
+                        <td>{{signalement.date}}</td>
+                        <td>{% if signalement.id_video != null %} {{signalement.id_video}} {% else %} Aucune vidéo liée {% endif %}</td>
+                        <td>{{signalement.id_auteur}}</td>
+                        <td>{{signalement.statut}}</td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </main>
+{% endblock %}
+

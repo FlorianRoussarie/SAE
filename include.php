@@ -42,9 +42,13 @@ require_once 'controllers/controller.class.php';
 require_once 'controllers/controller_factory.class.php';
 require_once 'controllers/controller_compte.class.php';
 require_once 'controllers/controller_video.class.php';
+require_once 'controllers/controller_signalement.class.php';
 
 //Ajout des modèles
 require_once 'modeles/compte.class.php';
 require_once 'modeles/compte.dao.php';
 require_once 'modeles/video.class.php';
 require_once 'modeles/video.dao.php';
+require_once 'modeles/compte.dao.php';
+require_once 'modeles/signalement.class.php';
+require_once 'modeles/signalement.dao.php';
