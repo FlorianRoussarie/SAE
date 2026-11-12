@@ -4,8 +4,6 @@
  * @brief Contrôleur permettant de gérer les vidéos.
  */
 class ControllerVideo extends Controller{
-    private VideoDAO $videoDAO;
-
     /**
      * @brief Contructeur du contrôleur vidéo.
      * @param \Twig\Environment $twig Environment Twig.
@@ -16,9 +14,6 @@ class ControllerVideo extends Controller{
         \Twig\Loader\FilesystemLoader $loader
     ){
         parent::__construct($twig, $loader);
-
-        $bd = Bd::getInstance()->getConnexion();
-        $this->videoDAO = new VideoDAO($bd);
     }
 
     /**
@@ -27,8 +22,9 @@ class ControllerVideo extends Controller{
      */
     public function afficher(): void
     {
+        $managerVideo = new VideoDAO($this->getPdo());
         // Récupération de la vidéo
-        $video = $this->videoDAO->getVideoAleatoire();
+        $video = $managerVideo->getVideoAleatoire();
 
         // Affichage de la vue
         $template = $this->getTwig()->load('video.html.twig');
