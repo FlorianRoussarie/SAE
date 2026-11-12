@@ -42,15 +42,12 @@ require_once __DIR__ . '/controllers/controller.class.php';
 require_once __DIR__ . '/controllers/controller_factory.class.php';
 require_once __DIR__ . '/controllers/controller_compte.class.php';
 require_once __DIR__ . '/controllers/controller_video.class.php';
-require_once __DIR__ . 'controllers/controller_signalement.class.php';
-
 
 //Ajout des modèles
 require_once __DIR__ . '/modeles/compte.class.php';
 require_once __DIR__ . '/modeles/compte.dao.php';
 require_once __DIR__ . '/modeles/video.class.php';
 require_once __DIR__ . '/modeles/video.dao.php';
-require_once __DIR__ . '/modeles/signalement.class.php';
-require_once __DIR__ . '/modeles/signalement.dao.php';
+
 
 
