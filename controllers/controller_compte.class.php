@@ -239,6 +239,8 @@ class ControllerCompte extends Controller
                     session_regenerate_id(true);
                     $_SESSION['id_compte'] = $compte->getId();
                     $_SESSION['pseudo'] = $compte->getPseudo();
+                    // Rôle lu par les pages réservées aux administrateurs (US04).
+                    $_SESSION['est_admin'] = $compte->getEstAdmin() ? 1 : 0;
                     $_SESSION['connexion_reussie'] = true;
                     header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
                     exit;
@@ -249,5 +251,17 @@ class ControllerCompte extends Controller
         }
 
         $this->afficherFormulaireConnexion($erreurs, array('adresse_mail' => $adresseMail));
+    }
+
+    /** @brief Retourne la date de naissance la plus récente autorisée à l'inscription. */
+    private function getDateNaissanceMax(): string
+    {
+        $aujourdhui = new DateTimeImmutable('today', new DateTimeZone('Europe/Paris'));
+        $dateLimite = $aujourdhui->modify('-13 years');
+        if ($aujourdhui->format('m-d') === '02-29') {
+            // La soustraction reporte le 29 février au 1er mars de l'année cible.
+            $dateLimite = $dateLimite->modify('-1 day');
+        }
+        return $dateLimite->format('Y-m-d');
     }
 }
