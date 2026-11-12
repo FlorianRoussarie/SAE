@@ -2,12 +2,9 @@
 /** @brief Affichage et traitement de l'inscription des comptes SHARE. */
 class ControllerCompte extends Controller
 {
-<<<<<<< HEAD
     private const MOTIF_NOM = '\p{L}[\p{L}\p{M}]*(?:(?:[ \'’]|-{1,2})\p{L}[\p{L}\p{M}]*)*';
     private const MOTIF_TELEPHONE = '(?:0[1-9](?:[ .\-]?[0-9]){8}|\+[1-9](?:[ .\-]?[0-9]){7,14})';
 
-=======
->>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
     /**
      * @brief Initialise le contrôleur selon l'ordre des paramètres du cours.
      * @param \Twig\Environment $twig Environnement Twig.
@@ -26,14 +23,11 @@ class ControllerCompte extends Controller
      */
     public function afficherFormulaireInscription(array $erreurs = array(), array $valeurs = array()): void
     {
-<<<<<<< HEAD
         if (isset($_SESSION['id_compte'])) {
             header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
             exit;
         }
 
-=======
->>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
         $succes = $_SESSION['inscription_reussie'] ?? false;
         unset($_SESSION['inscription_reussie']);
         $template = $this->getTwig()->load('inscription.html.twig');
@@ -41,14 +35,10 @@ class ControllerCompte extends Controller
             'menu' => 'inscription',
             'erreurs' => $erreurs,
             'valeurs' => $valeurs,
-<<<<<<< HEAD
             'succes' => $succes,
             'motifNom' => self::MOTIF_NOM,
             'motifTelephone' => self::MOTIF_TELEPHONE,
             'dateNaissanceMax' => $this->getDateNaissanceMax()
-=======
-            'succes' => $succes
->>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
         ));
     }
 
@@ -58,14 +48,11 @@ class ControllerCompte extends Controller
      */
     public function traiterFormulaireInscription(): void
     {
-<<<<<<< HEAD
         if (isset($_SESSION['id_compte'])) {
             header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
             exit;
         }
 
-=======
->>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
         if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
             header('Location: index.php?controleur=compte&methode=afficherFormulaireInscription');
             exit;
@@ -99,7 +86,6 @@ class ControllerCompte extends Controller
             }
         }
 
-<<<<<<< HEAD
         foreach (array('nom', 'prenom') as $champ) {
             if (!isset($erreurs[$champ])
                 && preg_match('/\A' . self::MOTIF_NOM . '\z/u', $valeurs[$champ]) !== 1) {
@@ -112,8 +98,6 @@ class ControllerCompte extends Controller
             $erreurs['telephone'] = 'Saisissez un numéro de téléphone valide, par exemple 06 12 34 56 78 ou +33 6 12 34 56 78.';
         }
 
-=======
->>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
         if (!isset($erreurs['adresse_mail'])
             && (filter_var($valeurs['adresse_mail'], FILTER_VALIDATE_EMAIL) === false
                 || preg_match('/\A[^@\s]+@[^@\s]+\.[A-Za-z]{2,}\z/', $valeurs['adresse_mail']) !== 1)) {
@@ -126,11 +110,8 @@ class ControllerCompte extends Controller
                 || !checkdate((int) $parties[2], (int) $parties[3], (int) $parties[1])
                 || $date > (new DateTimeImmutable('today', new DateTimeZone('Europe/Paris')))->format('Y-m-d')) {
                 $erreurs['date_naissance'] = 'Saisissez une date de naissance valide, qui ne soit pas dans le futur.';
-<<<<<<< HEAD
             } elseif ($date > $this->getDateNaissanceMax()) {
                 $erreurs['date_naissance'] = 'Vous devez avoir au moins 13 ans pour vous inscrire.';
-=======
->>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
             }
         }
 
@@ -191,7 +172,6 @@ class ControllerCompte extends Controller
 
         $this->afficherFormulaireInscription($erreurs, $valeurs);
     }
-<<<<<<< HEAD
 
     /** @brief Retourne la date de naissance la plus récente autorisée à l'inscription. */
     private function getDateNaissanceMax(): string
@@ -204,6 +184,4 @@ class ControllerCompte extends Controller
         }
         return $dateLimite->format('Y-m-d');
     }
-=======
->>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
 }
