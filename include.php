@@ -25,7 +25,7 @@ try {
 }
 
 //Chargement des paramètres de l'application (config/config.yml) via le Singleton Config
-require_once 'modeles/config.class.php';
+require_once __DIR__ . '/modeles/config.class.php';
 
 //Préfixe des tables lu dans config.yml, exposé en constante pour écrire les requêtes
 //des DAO comme dans le cours : "SELECT ... FROM " . PREFIXE_TABLE . "video"
@@ -37,11 +37,15 @@ require_once 'config/twig.php';
 //Ajout du modèle qui gère la connexion mysql
 require_once 'modeles/bd.class.php';
 
-//Ajout des contrôleurs
-require_once 'controllers/controller.class.php';
-require_once 'controllers/controller_factory.class.php';
-require_once 'controllers/controller_compte.class.php';
-require_once 'controllers/controller_video.class.php';
+// Chargement de la classe parent
+require_once __DIR__ . '/controllers/controller.class.php';
+
+// Chargement des contrôleurs enfants
+require_once __DIR__ . '/controllers/controller_compte.class.php';
+require_once __DIR__ . '/controllers/controller_video.class.php';
+
+// Chargement de la factory en dernier
+require_once __DIR__ . '/controllers/controller_factory.class.php';
 
 //Ajout des modèles
 require_once 'modeles/compte.class.php';

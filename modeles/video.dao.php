@@ -23,15 +23,14 @@ class VideoDAO{
     public function ajouterVideo($video)
     {
         $sql = "INSERT INTO " . PREFIXE_TABLE . "Video
-                (titre, description, chemin_fichier, taille_fichier, id_auteur)
-                VALUES (:titre, :description, :chemin_fichier, :taille_fichier, :id_auteur)";
-
+        (titre, description, chemin_video, taille_fichier, id_auteur)
+        VALUES (:titre, :description, :chemin_video, :taille_fichier, :id_auteur)";
         $req = $this->bd->prepare($sql);
 
         $req->execute([
             ':titre' => $video->getTitre(),
             ':description' => $video->getDescription(),
-            ':chemin_fichier' => $video->getCheminVideo(),
+            ':chemin_video' => $video->getCheminVideo(),
             ':taille_fichier' => $video->getTailleFichier(),
             ':id_auteur' => $video->getIdAuteur()
         ]);

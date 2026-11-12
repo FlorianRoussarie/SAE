@@ -1,16 +1,22 @@
 
+<h1>Share - Fil de vidéos</h1>
+
+{# Bouton pour accéder à la publication #}
+<div class="publication-button">
+    <a href="index.php?controleur=video&methode=publier">
+        <button type="button">+ Publier une vidéo</button>
+    </a>
+</div>
+
 {% if video is not null %}
     <div class="video-container">
-
         <h2>{{ video.titre }}</h2>
-
         <p>{{ video.description }}</p>
 
         <video controls width="640" preload="metadata">
-            <source src="{{ video.chemin_fichier }}" type="video/mp4">
+            <source src="{{ video.chemin_video }}" type="video/mp4">
             Votre navigateur ne supporte pas la lecture vidéo.
         </video>
-
     </div>
 {% else %}
     <p>Aucune vidéo disponible pour le moment.</p>
