@@ -5,8 +5,8 @@
  *
  * @details Toutes les URL passent par ce fichier avec deux paramètres GET :
  * - controleur : le nom de l'objet (ex. "video" pour ControllerVideo) ;
- * - methode : la méthode du contrôleur à appeler (ex. "defiler").
- * Exemple : index.php?controleur=video&methode=defiler&id_video=3
+ * - methode : la méthode du contrôleur à appeler (ex. "afficher").
+ * Exemple : index.php?controleur=video&methode=afficher&id_video=3
  */
 
 //Ajout du code commun à toutes les pages
@@ -29,7 +29,7 @@ try {
     //(la protection des pages renverra vers la connexion si besoin, tâche 0211)
     if ($controllerName == '' && $methode == '') {
         $controllerName = 'video';
-        $methode = 'defiler';
+        $methode = 'afficher';
     }
 
     if ($controllerName == '') {
