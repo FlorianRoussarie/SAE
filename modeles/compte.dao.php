@@ -23,6 +23,29 @@ class CompteDao
     }
 
     /**
+     * @brief Recherche le compte associé à une adresse e-mail (connexion, US02).
+     * @details Table simple sans jointure : récupération directe en objet Compte
+     * avec FETCH_CLASS | FETCH_PROPS_LATE, comme CategorieDao::find() dans le cours.
+     * @param string $adresseMail Adresse e-mail saisie dans le formulaire de connexion.
+     * @return Compte|null Le compte trouvé (avec le hash du mot de passe), ou null si l'adresse est inconnue.
+     * @throws PDOException Si la requête échoue.
+     */
+    public function findByAdresseMail(string $adresseMail): ?Compte
+    {
+        $sql = 'SELECT id, pseudo, prenom, nom, adresse_mail, telephone, mdp, date_naissance, adresse, statut, est_admin
+                FROM ' . PREFIXE_TABLE . 'Compte
+                WHERE adresse_mail = :adresse_mail';
+        $pdoStatement = $this->pdo->prepare($sql);
+        $pdoStatement->execute(array(':adresse_mail' => $adresseMail));
+        $pdoStatement->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, 'Compte');
+        $compte = $pdoStatement->fetch();
+        if ($compte === false) {
+            return null;
+        }
+        return $compte;
+    }
+
+    /**
      * @brief Recherche les collisions avec les trois contraintes d'unicité.
      * @param Compte $compte Données du compte à créer.
      * @return array Champs déjà utilisés : pseudo, adresse_mail ou telephone.
