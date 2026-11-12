@@ -1,5 +1,5 @@
 <?php
-/** @brief Affichage et traitement de l'inscription (US01) et de la connexion (US02) des comptes SHARE. */
+/** @brief Inscription, connexion et déconnexion des comptes SHARE. */
 class ControllerCompte extends Controller
 {
     private const MOTIF_NOM = '\p{L}[\p{L}\p{M}]*(?:(?:[ \'’]|-{1,2})\p{L}[\p{L}\p{M}]*)*';
@@ -251,6 +251,46 @@ class ControllerCompte extends Controller
         }
 
         $this->afficherFormulaireConnexion($erreurs, array('adresse_mail' => $adresseMail));
+    }
+
+    /**
+     * @brief Termine la session du compte après validation du formulaire POST et du jeton CSRF.
+     * @return void
+     */
+    public function deconnecter(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            header('Allow: POST');
+            http_response_code(405);
+            echo 'La déconnexion nécessite une requête POST.';
+            return;
+        }
+
+        $this->verifierConnexion();
+        $jetonRecu = $this->getPost()['csrf_deconnexion'] ?? null;
+        $jetonSession = $_SESSION['csrf_deconnexion'] ?? null;
+        if (!is_string($jetonRecu) || !is_string($jetonSession) || !hash_equals($jetonSession, $jetonRecu)) {
+            http_response_code(403);
+            echo 'Jeton de déconnexion invalide.';
+            return;
+        }
+
+        $_SESSION = array();
+        if (ini_get('session.use_cookies')) {
+            $parametresCookie = session_get_cookie_params();
+            setcookie(session_name(), '', array(
+                'expires' => time() - 3600,
+                'path' => $parametresCookie['path'],
+                'domain' => $parametresCookie['domain'],
+                'secure' => $parametresCookie['secure'],
+                'httponly' => $parametresCookie['httponly'],
+                'samesite' => $parametresCookie['samesite']
+            ));
+        }
+        session_destroy();
+
+        header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion', true, 303);
+        exit;
     }
 
     /** @brief Retourne la date de naissance la plus récente autorisée à l'inscription. */
