@@ -1,6 +1,8 @@
 # Dépendances (régénérées par composer install / npm install)
 /vendor
 /node_modules
+composer.lock
+package-lock.json
 
 # Secrets : accès à la base de données
 .env
