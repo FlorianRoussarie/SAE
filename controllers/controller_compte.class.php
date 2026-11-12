@@ -1,5 +1,5 @@
 <?php
-/** @brief Affichage et traitement de l'inscription des comptes SHARE. */
+/** @brief Affichage et traitement de l'inscription (US01) et de la connexion (US02) des comptes SHARE. */
 class ControllerCompte extends Controller
 {
     private const MOTIF_NOM = '\p{L}[\p{L}\p{M}]*(?:(?:[ \'’]|-{1,2})\p{L}[\p{L}\p{M}]*)*';
@@ -171,6 +171,86 @@ class ControllerCompte extends Controller
         }
 
         $this->afficherFormulaireInscription($erreurs, $valeurs);
+    }
+
+    /**
+     * @brief Affiche le formulaire de connexion (US02), ou le message de succès si un compte est déjà connecté.
+     * @param array $erreurs Messages d'erreur indexés par champ ('adresse_mail', 'mdp', 'general').
+     * @param array $valeurs Saisies à réafficher, sans le mot de passe.
+     * @return void
+     */
+    public function afficherFormulaireConnexion(array $erreurs = array(), array $valeurs = array()): void
+    {
+        $succes = $_SESSION['connexion_reussie'] ?? false;
+        unset($_SESSION['connexion_reussie']);
+        $template = $this->getTwig()->load('connexion.html.twig');
+        echo $template->render(array(
+            'menu' => 'connexion',
+            'erreurs' => $erreurs,
+            'valeurs' => $valeurs,
+            'succes' => $succes,
+            'connecte' => isset($_SESSION['id_compte']),
+            'pseudo' => $_SESSION['pseudo'] ?? null
+        ));
+    }
+
+    /**
+     * @brief Valide le POST, vérifie l'adresse e-mail et le mot de passe, puis ouvre la session (US02).
+     * @details Le message d'erreur reste le même que l'adresse soit inconnue ou que le mot de passe soit faux,
+     * pour ne pas révéler quelles adresses ont un compte. Un compte banni (US04) ne peut pas se connecter.
+     * Après une connexion réussie : changement d'identifiant de session, puis redirection (Post/Redirect/Get).
+     * @return void
+     */
+    public function traiterFormulaireConnexion(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+            exit;
+        }
+
+        $post = $this->getPost() ?? array();
+        $erreurs = array();
+
+        // Validation serveur : la validation HTML5 du formulaire peut être contournée.
+        $adresseMail = isset($post['adresse_mail']) && is_string($post['adresse_mail']) ? trim($post['adresse_mail']) : '';
+        // Le mot de passe n'est ni modifié (pas de trim) ni renvoyé à Twig.
+        $mdp = isset($post['mdp']) && is_string($post['mdp']) ? $post['mdp'] : '';
+
+        if ($adresseMail === '') {
+            $erreurs['adresse_mail'] = 'Adresse e-mail : ce champ est obligatoire.';
+        } elseif (preg_match_all('/./us', $adresseMail) > 50 || filter_var($adresseMail, FILTER_VALIDATE_EMAIL) === false) {
+            $erreurs['adresse_mail'] = 'Saisissez une adresse e-mail valide, par exemple nom@exemple.fr.';
+        }
+        if ($mdp === '') {
+            $erreurs['mdp'] = 'Mot de passe : ce champ est obligatoire.';
+        }
+
+        if (empty($erreurs)) {
+            $managerCompte = new CompteDao($this->getPdo());
+            try {
+                $compte = $managerCompte->findByAdresseMail($adresseMail);
+                if ($compte === null || !password_verify($mdp, $compte->getMdp() ?? '')) {
+                    $erreurs['general'] = 'Adresse e-mail ou mot de passe incorrect.';
+                } elseif ($compte->getStatut() === 'banni') {
+                    // Vérifié après le mot de passe : seul le titulaire du compte apprend qu'il est banni.
+                    $erreurs['general'] = 'Votre compte a été banni : vous ne pouvez plus vous connecter.';
+                } else {
+                    // Nouvel identifiant de session pour empêcher la fixation de session.
+                    session_regenerate_id(true);
+                    $_SESSION['id_compte'] = $compte->getId();
+                    $_SESSION['pseudo'] = $compte->getPseudo();
+                    // Rôle lu par les pages réservées aux administrateurs (US04).
+                    $_SESSION['est_admin'] = $compte->getEstAdmin() ? 1 : 0;
+                    $_SESSION['connexion_reussie'] = true;
+                    header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+                    exit;
+                }
+            } catch (PDOException $e) {
+                $erreurs['general'] = 'La connexion n’a pas pu aboutir. Veuillez réessayer ultérieurement.';
+            }
+        }
+
+        $this->afficherFormulaireConnexion($erreurs, array('adresse_mail' => $adresseMail));
     }
 
     /** @brief Retourne la date de naissance la plus récente autorisée à l'inscription. */
