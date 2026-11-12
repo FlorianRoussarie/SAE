@@ -41,6 +41,7 @@
                                    type="{{ champ.type }}" id="{{ champ.nom }}" name="{{ champ.nom }}"
                                    value="{{ valeurs[champ.nom]|default('') }}"
                                    maxlength="{{ champ.longueur }}" autocomplete="{{ champ.autocomplete }}"
+<<<<<<< HEAD
                                    {% if champ.nom in ['nom', 'prenom'] %}pattern="{{ motifNom }}" title="Lettres, espaces, apostrophes et traits d’union."{% endif %}
                                    {% if champ.nom == 'telephone' %}pattern="{{ motifTelephone }}" title="Par exemple 06 12 34 56 78 ou +33 6 12 34 56 78."{% endif %}
                                    {% if champ.type == 'email' %}pattern="[^@\s]+@[^@\s]+\.[A-Za-z]{2,}" title="Saisissez une adresse e-mail valide, par exemple nom@exemple.fr."{% endif %}
@@ -50,6 +51,12 @@
                             {% if champ.nom == 'date_naissance' %}
                                 <div class="form-text">Vous devez avoir au moins 13 ans pour vous inscrire.</div>
                             {% endif %}
+=======
+                                   {% if champ.type == 'email' %}pattern="[^@\s]+@[^@\s]+\.[A-Za-z]{2,}" title="Saisissez une adresse e-mail valide, par exemple nom@exemple.fr."{% endif %}
+                                   {% if champ.type == 'date' %}min="1000-01-01" max="{{ 'now'|date('Y-m-d') }}"{% endif %}
+                                   {% if champ.obligatoire %}required{% endif %}
+                                   {% if erreurs[champ.nom] is defined %}aria-invalid="true" aria-describedby="erreur_{{ champ.nom }}"{% endif %}>
+>>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
                             {% if erreurs[champ.nom] is defined %}
                                 <div class="invalid-feedback" id="erreur_{{ champ.nom }}">{{ erreurs[champ.nom] }}</div>
                             {% endif %}

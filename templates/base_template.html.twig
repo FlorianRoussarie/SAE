@@ -12,6 +12,7 @@
         <nav class="navbar bg-body-tertiary" aria-label="Navigation principale">
             <div class="container-fluid">
                 <span class="navbar-brand">SHARE</span>
+<<<<<<< HEAD
                 <div class="navbar-nav flex-row gap-3">
                     {% if not connecte|default(false) %}
                         <a class="nav-link{% if menu == 'inscription' %} active{% endif %}"
@@ -20,6 +21,10 @@
                     <a class="nav-link{% if menu == 'connexion' %} active{% endif %}"
                        href="index.php?controleur=compte&amp;methode=afficherFormulaireConnexion">Connexion</a>
                 </div>
+=======
+                <a class="nav-link{% if menu == 'inscription' %} active{% endif %}"
+                   href="index.php?controleur=compte&amp;methode=afficherFormulaireInscription">Créer un compte</a>
+>>>>>>> b90306079e94515baafc4c7714462ef7d5fd0db0
             </div>
         </nav>
     </header>
