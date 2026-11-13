@@ -1,0 +1,67 @@
+{% extends 'base_template.html.twig' %}
+
+{% block title %}Connexion - SHARE{% endblock %}
+
+{% block content %}
+    <main class="row justify-content-center py-4">
+        <div class="col-md-8 col-lg-6">
+            <h1 class="mb-4">Connexion</h1>
+
+            {% if connecte %}
+                {% if succes %}
+                    <div class="alert alert-success" role="status">
+                        Vous êtes connecté. Bienvenue {{ pseudo }} !
+                    </div>
+                {% else %}
+                    <div class="alert alert-info" role="status">
+                        Vous êtes déjà connecté en tant que {{ pseudo }}.
+                    </div>
+                {% endif %}
+                <a class="btn btn-primary" href="index.php">Voir les vidéos</a>
+            {% else %}
+                {% if erreurs %}
+                    <div class="alert alert-danger" role="alert">
+                        <p class="mb-2">La connexion n’a pas pu être effectuée :</p>
+                        <ul class="mb-0">
+                            {% for erreur in erreurs %}
+                                <li>{{ erreur }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <form action="index.php?controleur=compte&amp;methode=traiterFormulaireConnexion" method="post">
+                    <div class="mb-3">
+                        <label class="form-label" for="adresse_mail">Adresse e-mail *</label>
+                        <input class="form-control{% if erreurs.adresse_mail is defined %} is-invalid{% endif %}"
+                               type="email" id="adresse_mail" name="adresse_mail"
+                               value="{{ valeurs.adresse_mail|default('') }}"
+                               maxlength="50" autocomplete="email" required
+                               {% if erreurs.adresse_mail is defined %}aria-invalid="true" aria-describedby="erreur_adresse_mail"{% endif %}>
+                        {% if erreurs.adresse_mail is defined %}
+                            <div class="invalid-feedback" id="erreur_adresse_mail">{{ erreurs.adresse_mail }}</div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="mdp">Mot de passe *</label>
+                        <input class="form-control{% if erreurs.mdp is defined %} is-invalid{% endif %}"
+                               type="password" id="mdp" name="mdp"
+                               autocomplete="current-password" required
+                               {% if erreurs.mdp is defined %}aria-invalid="true" aria-describedby="erreur_mdp"{% endif %}>
+                        {% if erreurs.mdp is defined %}
+                            <div class="invalid-feedback" id="erreur_mdp">{{ erreurs.mdp }}</div>
+                        {% endif %}
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">Se connecter</button>
+                </form>
+
+                <p class="mt-3">
+                    Pas encore de compte ?
+                    <a href="index.php?controleur=compte&amp;methode=afficherFormulaireInscription">Créer un compte</a>
+                </p>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}

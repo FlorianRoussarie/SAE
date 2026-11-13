@@ -1,23 +1,28 @@
+{% extends 'base_template.html.twig' %}
 
-<h1>Share - Fil de vidéos</h1>
+{% block title %}Video - SHARE{% endblock %}
 
-{# Bouton pour accéder à la publication #}
-<div class="publication-button">
-    <a href="index.php?controleur=video&methode=publier">
-        <button type="button">+ Publier une vidéo</button>
-    </a>
-</div>
+{% block content %}
+    {% if session.id_compte is defined %}
+        <a class="btn btn-primary my-3" href="index.php?controleur=video&amp;methode=publier">Publier une vidéo</a>
+    {% endif %}
+    {% if video is not null %}
+        <div class="video-container">
+            <h2>{{ video.titre }}</h2>
+            <p>{{ video.description }}</p>
 
-{% if video is not null %}
-    <div class="video-container">
-        <h2>{{ video.titre }}</h2>
-        <p>{{ video.description }}</p>
-
-        <video controls width="640" preload="metadata">
-            <source src="{{ video.chemin_video }}" type="video/mp4">
-            Votre navigateur ne supporte pas la lecture vidéo.
-        </video>
-    </div>
-{% else %}
-    <p>Aucune vidéo disponible pour le moment.</p>
-{% endif %}
+            <video controls width="640" preload="metadata">
+                {% if video.cheminVideo ends with '.webm' %}
+                    <source src="{{ video.cheminVideo }}" type="video/webm">
+                {% elseif video.cheminVideo ends with '.mov' %}
+                    <source src="{{ video.cheminVideo }}" type="video/quicktime">
+                {% else %}
+                    <source src="{{ video.cheminVideo }}" type="video/mp4">
+                {% endif %}
+                Votre navigateur ne supporte pas la lecture vidéo.
+            </video>
+        </div>
+    {% else %}
+        <p>Aucune vidéo disponible pour le moment.</p>
+    {% endif %}
+{% endblock %}

@@ -1,50 +1,48 @@
 <?php
-
+/** @brief Singleton de connexion MySQL utilisé par les contrôleurs. */
 class Bd
 {
     private static ?Bd $instance = null;
-    private PDO $connexion;
+    private ?PDO $pdo;
 
+    /** @brief Ouvre la connexion avec les secrets déjà chargés depuis .env. */
     private function __construct()
     {
-        $variables = [];
-        foreach (['DB_HOST', 'DB_NAME', 'DB_USER', 'DB_PASS'] as $nom) {
-            $valeur = $_ENV[$nom] ?? getenv($nom);
-            if ($valeur === false || $valeur === null) {
-                throw new RuntimeException('Variable d\'environnement manquante : ' . $nom);
-            }
-            $variables[$nom] = $valeur;
+        try {
+            $this->pdo = new PDO(
+                'mysql:host=' . $_ENV['DB_HOST'] . ';dbname=' . $_ENV['DB_NAME'] . ';charset=utf8mb4',
+                $_ENV['DB_USER'],
+                $_ENV['DB_PASS']
+            );
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        } catch (PDOException $e) {
+            die('Connexion à la base de données échouée.');
         }
-
-        $dsn = 'mysql:host=' . $variables['DB_HOST']
-            . ';dbname=' . $variables['DB_NAME'] . ';charset=utf8mb4';
-
-        $this->connexion = new PDO($dsn, $variables['DB_USER'], $variables['DB_PASS'], [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-        ]);
     }
 
+    /** @brief Retourne l'unique instance. @return Bd Singleton. */
     public static function getInstance(): Bd
     {
         if (self::$instance === null) {
             self::$instance = new Bd();
         }
-
         return self::$instance;
     }
 
+    /** @brief Retourne la connexion partagée. @return PDO Connexion MySQL. */
     public function getConnexion(): PDO
     {
-        return $this->connexion;
+        return $this->pdo;
     }
 
+    /** @brief Empêche le clonage du singleton. */
     private function __clone()
     {
     }
 
+    /** @brief Empêche la désérialisation. @throws Exception Toujours. @return void */
     public function __wakeup(): void
     {
-        throw new LogicException('La connexion Bd ne peut pas être désérialisée.');
+        throw new Exception('Un singleton ne doit pas être désérialisé');
     }
 }

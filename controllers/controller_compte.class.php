@@ -1,19 +1,307 @@
 <?php
-class ControllerCompte extends Controller  {
-    public function __construct(\Twig\Environment $twig, \Twig\Loader\FilesystemLoader $loader){
-        parent:: __construct($twig,$loader);
+/** @brief Inscription, connexion et déconnexion des comptes SHARE. */
+class ControllerCompte extends Controller
+{
+    private const MOTIF_NOM = '\p{L}[\p{L}\p{M}]*(?:(?:[ \'’]|-{1,2})\p{L}[\p{L}\p{M}]*)*';
+    private const MOTIF_TELEPHONE = '(?:0[1-9](?:[ .\-]?[0-9]){8}|\+[1-9](?:[ .\-]?[0-9]){7,14})';
+
+    /**
+     * @brief Initialise le contrôleur selon l'ordre des paramètres du cours.
+     * @param \Twig\Environment $twig Environnement Twig.
+     * @param \Twig\Loader\FilesystemLoader $loader Chargeur des vues.
+     */
+    public function __construct(\Twig\Environment $twig, \Twig\Loader\FilesystemLoader $loader)
+    {
+        parent::__construct($twig, $loader);
     }
-    public function bannir() {
-        $id=null;
-        if (isset($_POST['id'])) {
-            $id=intval($_POST['id']);
+
+    /**
+     * @brief Affiche le formulaire ou réaffiche les saisies non sensibles après une erreur.
+     * @param array $erreurs Messages de validation indexés par champ.
+     * @param array $valeurs Saisies à conserver, sans mot de passe.
+     * @return void
+     */
+    public function afficherFormulaireInscription(array $erreurs = array(), array $valeurs = array()): void
+    {
+        if (isset($_SESSION['id_compte'])) {
+            header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+            exit;
         }
-        if($id){
-            $managerCompte =new CompteDAO($this->getPdo());
-            $managerCompte->bannir($id);
-            header('Location: index.php?controlles=compteaction=lister');
-            exit();
+
+        $succes = $_SESSION['inscription_reussie'] ?? false;
+        unset($_SESSION['inscription_reussie']);
+        $template = $this->getTwig()->load('inscription.html.twig');
+        echo $template->render(array(
+            'menu' => 'inscription',
+            'erreurs' => $erreurs,
+            'valeurs' => $valeurs,
+            'succes' => $succes,
+            'motifNom' => self::MOTIF_NOM,
+            'motifTelephone' => self::MOTIF_TELEPHONE,
+            'dateNaissanceMax' => $this->getDateNaissanceMax()
+        ));
+    }
+
+    /**
+     * @brief Valide le POST, hashe le mot de passe et enregistre le compte par le DAO.
+     * @return void
+     */
+    public function traiterFormulaireInscription(): void
+    {
+        if (isset($_SESSION['id_compte'])) {
+            header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+            exit;
         }
-     
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            header('Location: index.php?controleur=compte&methode=afficherFormulaireInscription');
+            exit;
+        }
+
+        $post = $this->getPost() ?? array();
+        $erreurs = array();
+        $valeurs = array();
+        // Longueurs et champs obligatoires du CREATE TABLE Compte fourni.
+        $champs = array(
+            'pseudo' => array('Pseudo', 50, true),
+            'prenom' => array('Prénom', 50, true),
+            'nom' => array('Nom', 50, true),
+            'adresse_mail' => array('Adresse e-mail', 50, true),
+            'telephone' => array('Téléphone', 30, false),
+            'date_naissance' => array('Date de naissance', 10, true),
+            'adresse' => array('Adresse postale', 250, false)
+        );
+        foreach ($champs as $champ => $contraintes) {
+            if (isset($post[$champ]) && !is_string($post[$champ])) {
+                $erreurs[$champ] = $contraintes[0] . ' : saisie invalide.';
+                $valeurs[$champ] = '';
+                continue;
+            }
+            $valeurs[$champ] = trim($post[$champ] ?? '');
+            $longueur = preg_match_all('/./us', $valeurs[$champ]);
+            if ($contraintes[2] && $valeurs[$champ] === '') {
+                $erreurs[$champ] = $contraintes[0] . ' : ce champ est obligatoire.';
+            } elseif ($longueur === false || $longueur > $contraintes[1]) {
+                $erreurs[$champ] = $contraintes[0] . ' : maximum ' . $contraintes[1] . ' caractères.';
+            }
+        }
+
+        foreach (array('nom', 'prenom') as $champ) {
+            if (!isset($erreurs[$champ])
+                && preg_match('/\A' . self::MOTIF_NOM . '\z/u', $valeurs[$champ]) !== 1) {
+                $erreurs[$champ] = $champs[$champ][0] . ' : utilisez des lettres, avec des espaces, apostrophes ou traits d’union si nécessaire.';
+            }
+        }
+
+        if (!isset($erreurs['telephone']) && $valeurs['telephone'] !== ''
+            && preg_match('/\A' . self::MOTIF_TELEPHONE . '\z/', $valeurs['telephone']) !== 1) {
+            $erreurs['telephone'] = 'Saisissez un numéro de téléphone valide, par exemple 06 12 34 56 78 ou +33 6 12 34 56 78.';
+        }
+
+        if (!isset($erreurs['adresse_mail'])
+            && (filter_var($valeurs['adresse_mail'], FILTER_VALIDATE_EMAIL) === false
+                || preg_match('/\A[^@\s]+@[^@\s]+\.[A-Za-z]{2,}\z/', $valeurs['adresse_mail']) !== 1)) {
+            $erreurs['adresse_mail'] = 'Saisissez une adresse e-mail valide, par exemple nom@exemple.fr.';
+        }
+
+        if (!isset($erreurs['date_naissance'])) {
+            $date = $valeurs['date_naissance'];
+            if (!preg_match('/^([1-9][0-9]{3})-([0-9]{2})-([0-9]{2})$/', $date, $parties)
+                || !checkdate((int) $parties[2], (int) $parties[3], (int) $parties[1])
+                || $date > (new DateTimeImmutable('today', new DateTimeZone('Europe/Paris')))->format('Y-m-d')) {
+                $erreurs['date_naissance'] = 'Saisissez une date de naissance valide, qui ne soit pas dans le futur.';
+            } elseif ($date > $this->getDateNaissanceMax()) {
+                $erreurs['date_naissance'] = 'Vous devez avoir au moins 13 ans pour vous inscrire.';
+            }
+        }
+
+        // Ne pas supprimer les espaces du mot de passe ni le renvoyer à Twig.
+        $mdp = isset($post['mdp']) && is_string($post['mdp']) ? $post['mdp'] : '';
+        $confirmationMdp = isset($post['confirmation_mdp']) && is_string($post['confirmation_mdp']) ? $post['confirmation_mdp'] : '';
+        $regexMdp = '/\A(?=.*\p{Lu})(?=.*\p{Ll})(?=.*[0-9])(?=.*[^\p{L}\p{N}\s]).{8,}\z/us';
+        if (preg_match($regexMdp, $mdp) !== 1 || strpos($mdp, "\0") !== false) {
+            $erreurs['mdp'] = 'Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.';
+        } elseif (PASSWORD_DEFAULT === PASSWORD_BCRYPT && strlen($mdp) > 72) {
+            $erreurs['mdp'] = 'Le mot de passe est trop long. Choisissez un mot de passe plus court.';
+        }
+        if ($confirmationMdp === '' || $mdp !== $confirmationMdp) {
+            $erreurs['confirmation_mdp'] = 'La confirmation doit être identique au mot de passe.';
+        }
+
+        if (empty($erreurs)) {
+            $compte = new Compte(
+                null,
+                $valeurs['pseudo'],
+                $valeurs['prenom'],
+                $valeurs['nom'],
+                $valeurs['adresse_mail'],
+                $valeurs['telephone'] !== '' ? $valeurs['telephone'] : null,
+                null,
+                $valeurs['date_naissance'],
+                $valeurs['adresse'] !== '' ? $valeurs['adresse'] : null
+            );
+            $managerCompte = new CompteDao($this->getPdo());
+            $messagesDoublons = array(
+                'pseudo' => 'Ce pseudo est déjà utilisé.',
+                'adresse_mail' => 'Cette adresse e-mail est déjà utilisée.',
+                'telephone' => 'Ce numéro de téléphone est déjà utilisé.'
+            );
+            try {
+                foreach ($managerCompte->findDoublons($compte) as $champ) {
+                    $erreurs[$champ] = $messagesDoublons[$champ];
+                }
+                if (empty($erreurs)) {
+                    $compte->setMdp(password_hash($mdp, PASSWORD_DEFAULT));
+                    $managerCompte->enregistrerCompte($compte);
+                    // Message temporaire uniquement : aucune authentification automatique.
+                    $_SESSION['inscription_reussie'] = true;
+                    header('Location: index.php?controleur=compte&methode=afficherFormulaireInscription');
+                    exit;
+                }
+            } catch (PDOException $e) {
+                if (($e->errorInfo[1] ?? null) == 1062) {
+                    // Une inscription concurrente peut créer un doublon après la recherche.
+                    $erreurs['general'] = 'Le pseudo, l’adresse e-mail ou le téléphone est déjà utilisé. Modifiez votre saisie.';
+                } else {
+                    $erreurs['general'] = 'L’inscription n’a pas pu être enregistrée. Veuillez réessayer ultérieurement.';
+                }
+            } catch (LengthException $e) {
+                $erreurs['general'] = 'Le mot de passe hashé ne peut pas être enregistré.';
+            }
+        }
+
+        $this->afficherFormulaireInscription($erreurs, $valeurs);
+    }
+
+    /**
+     * @brief Affiche le formulaire de connexion (US02), ou le message de succès si un compte est déjà connecté.
+     * @param array $erreurs Messages d'erreur indexés par champ ('adresse_mail', 'mdp', 'general').
+     * @param array $valeurs Saisies à réafficher, sans le mot de passe.
+     * @return void
+     */
+    public function afficherFormulaireConnexion(array $erreurs = array(), array $valeurs = array()): void
+    {
+        $succes = $_SESSION['connexion_reussie'] ?? false;
+        unset($_SESSION['connexion_reussie']);
+        $template = $this->getTwig()->load('connexion.html.twig');
+        echo $template->render(array(
+            'menu' => 'connexion',
+            'erreurs' => $erreurs,
+            'valeurs' => $valeurs,
+            'succes' => $succes,
+            'connecte' => isset($_SESSION['id_compte']),
+            'pseudo' => $_SESSION['pseudo'] ?? null
+        ));
+    }
+
+    /**
+     * @brief Valide le POST, vérifie l'adresse e-mail et le mot de passe, puis ouvre la session (US02).
+     * @details Le message d'erreur reste le même que l'adresse soit inconnue ou que le mot de passe soit faux,
+     * pour ne pas révéler quelles adresses ont un compte. Un compte banni (US04) ne peut pas se connecter.
+     * Après une connexion réussie : changement d'identifiant de session, puis redirection (Post/Redirect/Get).
+     * @return void
+     */
+    public function traiterFormulaireConnexion(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+            exit;
+        }
+
+        $post = $this->getPost() ?? array();
+        $erreurs = array();
+
+        // Validation serveur : la validation HTML5 du formulaire peut être contournée.
+        $adresseMail = isset($post['adresse_mail']) && is_string($post['adresse_mail']) ? trim($post['adresse_mail']) : '';
+        // Le mot de passe n'est ni modifié (pas de trim) ni renvoyé à Twig.
+        $mdp = isset($post['mdp']) && is_string($post['mdp']) ? $post['mdp'] : '';
+
+        if ($adresseMail === '') {
+            $erreurs['adresse_mail'] = 'Adresse e-mail : ce champ est obligatoire.';
+        } elseif (preg_match_all('/./us', $adresseMail) > 50 || filter_var($adresseMail, FILTER_VALIDATE_EMAIL) === false) {
+            $erreurs['adresse_mail'] = 'Saisissez une adresse e-mail valide, par exemple nom@exemple.fr.';
+        }
+        if ($mdp === '') {
+            $erreurs['mdp'] = 'Mot de passe : ce champ est obligatoire.';
+        }
+
+        if (empty($erreurs)) {
+            $managerCompte = new CompteDao($this->getPdo());
+            try {
+                $compte = $managerCompte->findByAdresseMail($adresseMail);
+                if ($compte === null || !password_verify($mdp, $compte->getMdp() ?? '')) {
+                    $erreurs['general'] = 'Adresse e-mail ou mot de passe incorrect.';
+                } elseif ($compte->getStatut() === 'banni') {
+                    // Vérifié après le mot de passe : seul le titulaire du compte apprend qu'il est banni.
+                    $erreurs['general'] = 'Votre compte a été banni : vous ne pouvez plus vous connecter.';
+                } else {
+                    // Nouvel identifiant de session pour empêcher la fixation de session.
+                    session_regenerate_id(true);
+                    $_SESSION['id_compte'] = $compte->getId();
+                    $_SESSION['pseudo'] = $compte->getPseudo();
+                    // Rôle lu par les pages réservées aux administrateurs (US04).
+                    $_SESSION['est_admin'] = $compte->getEstAdmin() ? 1 : 0;
+                    $_SESSION['connexion_reussie'] = true;
+                    header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion');
+                    exit;
+                }
+            } catch (PDOException $e) {
+                $erreurs['general'] = 'La connexion n’a pas pu aboutir. Veuillez réessayer ultérieurement.';
+            }
+        }
+
+        $this->afficherFormulaireConnexion($erreurs, array('adresse_mail' => $adresseMail));
+    }
+
+    /**
+     * @brief Termine la session du compte après validation du formulaire POST et du jeton CSRF.
+     * @return void
+     */
+    public function deconnecter(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            header('Allow: POST');
+            http_response_code(405);
+            echo 'La déconnexion nécessite une requête POST.';
+            return;
+        }
+
+        $this->verifierConnexion();
+        $jetonRecu = $this->getPost()['csrf_deconnexion'] ?? null;
+        $jetonSession = $_SESSION['csrf_deconnexion'] ?? null;
+        if (!is_string($jetonRecu) || !is_string($jetonSession) || !hash_equals($jetonSession, $jetonRecu)) {
+            http_response_code(403);
+            echo 'Jeton de déconnexion invalide.';
+            return;
+        }
+
+        $_SESSION = array();
+        if (ini_get('session.use_cookies')) {
+            $parametresCookie = session_get_cookie_params();
+            setcookie(session_name(), '', array(
+                'expires' => time() - 3600,
+                'path' => $parametresCookie['path'],
+                'domain' => $parametresCookie['domain'],
+                'secure' => $parametresCookie['secure'],
+                'httponly' => $parametresCookie['httponly'],
+                'samesite' => $parametresCookie['samesite']
+            ));
+        }
+        session_destroy();
+
+        header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion', true, 303);
+        exit;
+    }
+
+    /** @brief Retourne la date de naissance la plus récente autorisée à l'inscription. */
+    private function getDateNaissanceMax(): string
+    {
+        $aujourdhui = new DateTimeImmutable('today', new DateTimeZone('Europe/Paris'));
+        $dateLimite = $aujourdhui->modify('-13 years');
+        if ($aujourdhui->format('m-d') === '02-29') {
+            // La soustraction reporte le 29 février au 1er mars de l'année cible.
+            $dateLimite = $dateLimite->modify('-1 day');
+        }
+        return $dateLimite->format('Y-m-d');
     }
 }

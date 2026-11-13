@@ -1,15 +1,12 @@
-
 <?php
+/** @file twig.php @brief Initialisation unique des vues Twig de SHARE. */
+use Twig\Extra\Intl\IntlExtension;
 
-// Indique à Twig ou se trouvent les fichiers HTML
-$loader = new \Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
-
-// initialise Twig pour pouvoir afficher les pages de l'application
-$twig = new \Twig\Environment($loader, [
-    'debug' => true
-]);
-
-// activer les fonctions de débogage Twig (dump)
+$loader = new Twig\Loader\FilesystemLoader(__DIR__ . '/../templates');
+$twig = new Twig\Environment($loader, array('debug' => true));
+$twig->getExtension(\Twig\Extension\CoreExtension::class)->setTimezone('Europe/Paris');
 $twig->addExtension(new \Twig\Extension\DebugExtension());
-
-?>
+$twig->addExtension(new IntlExtension());
+$twig->addGlobal('config', Config::getConfig());
+// Session lue par base_template (compte connecté dans la navbar, US02). session_start() est appelé avant, dans include.php.
+$twig->addGlobal('session', $_SESSION);

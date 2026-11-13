@@ -8,11 +8,16 @@
  * Chaque nouveau fichier de classe doit être ajouté ici avec require_once.
  */
 
-//Démarrage de la session (avant tout affichage) : utilisée par la connexion (US02)
+//Démarrage de la session (avant tout affichage)
 session_start();
 
+//Le formulaire de déconnexion utilise un jeton propre à la session connectée.
+if (isset($_SESSION['id_compte']) && !isset($_SESSION['csrf_deconnexion'])) {
+    $_SESSION['csrf_deconnexion'] = bin2hex(random_bytes(32));
+}
+
 //Ajout de l'autoload de composer
-require_once 'vendor/autoload.php';
+require_once __DIR__ . '/vendor/autoload.php';
 
 //Chargement des secrets depuis le fichier .env (accès à la base de données)
 //Les valeurs sont ensuite disponibles dans $_ENV['DB_HOST'], $_ENV['DB_NAME']...
@@ -32,23 +37,19 @@ require_once __DIR__ . '/modeles/config.class.php';
 define('PREFIXE_TABLE', Config::getConfig()['db']['prefixe_table']);
 
 //Ajout du code pour initialiser twig
-require_once 'config/twig.php';
+require_once __DIR__ . '/config/twig.php';
 
 //Ajout du modèle qui gère la connexion mysql
-require_once 'modeles/bd.class.php';
+require_once __DIR__ . '/modeles/bd.class.php';
 
-// Chargement de la classe parent
+//Ajout des contrôleurs
 require_once __DIR__ . '/controllers/controller.class.php';
-
-// Chargement des contrôleurs enfants
+require_once __DIR__ . '/controllers/controller_factory.class.php';
 require_once __DIR__ . '/controllers/controller_compte.class.php';
 require_once __DIR__ . '/controllers/controller_video.class.php';
 
-// Chargement de la factory en dernier
-require_once __DIR__ . '/controllers/controller_factory.class.php';
-
 //Ajout des modèles
-require_once 'modeles/compte.class.php';
-require_once 'modeles/compte.dao.php';
-require_once 'modeles/video.class.php';
-require_once 'modeles/video.dao.php';
+require_once __DIR__ . '/modeles/compte.class.php';
+require_once __DIR__ . '/modeles/compte.dao.php';
+require_once __DIR__ . '/modeles/video.class.php';
+require_once __DIR__ . '/modeles/video.dao.php';

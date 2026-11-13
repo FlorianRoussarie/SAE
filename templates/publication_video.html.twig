@@ -1,35 +1,39 @@
-<h1>Publier une vidéo</h1>
+{% extends 'base_template.html.twig' %}
 
-{% if message is defined %}
-    <p>{{ message }}</p>
-{% endif %}
+{% block title %}Publier une vidéo - SHARE{% endblock %}
 
-{% if erreur is defined %}
-    <p>{{ erreur }}</p>
-{% endif %}
+{% block content %}
+    <main class="row justify-content-center py-4">
+        <div class="col-md-8 col-lg-6">
+            <h1 class="mb-4">Publier une vidéo</h1>
 
-<form action="index.php?controleur=video&methode=publier"
-      method="POST"
-      enctype="multipart/form-data">
+            {% if message %}
+                <div class="alert alert-success" role="status">{{ message }}</div>
+            {% endif %}
+            {% if erreur %}
+                <div class="alert alert-danger" role="alert">{{ erreur }}</div>
+            {% endif %}
 
-    <label for="titre">Titre :</label>
-    <input type="text"
-           id="titre"
-           name="titre"
-           maxlength="100"
-           required>
-
-    <label for="description">Description :</label>
-    <textarea id="description"
-              name="description"></textarea>
-
-    <label for="video">Choisir une vidéo :</label>
-    <input type="file"
-           id="video"
-           name="video"
-           accept="video/mp4,video/webm,video/quicktime"
-           required>
-
-    <button type="submit">Publier</button>
-
-</form>
+            <form action="index.php?controleur=video&amp;methode=publier" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="csrf_publication" value="{{ jetonPublication }}">
+                <div class="mb-3">
+                    <label class="form-label" for="titre">Titre</label>
+                    <input class="form-control" type="text" id="titre" name="titre"
+                           value="{{ titre }}" maxlength="100" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea class="form-control" id="description" name="description" maxlength="1000">{{ description }}</textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="video">Vidéo</label>
+                    <input class="form-control" type="file" id="video" name="video"
+                           accept="video/mp4,video/webm,video/quicktime" aria-describedby="formats_video" required>
+                    <div class="form-text" id="formats_video">MP4, WebM ou MOV, 100 Mio maximum.</div>
+                </div>
+                <button class="btn btn-primary" type="submit">Publier</button>
+                <a class="btn btn-link" href="index.php?controleur=video&amp;methode=afficher">Retour aux vidéos</a>
+            </form>
+        </div>
+    </main>
+{% endblock %}
