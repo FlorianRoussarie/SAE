@@ -109,9 +109,17 @@ class CompteDao
             throw $e;
         }
     }
+
     public function bannir($id){
         $sql="UPDATE". PREFIXE_TABLE . " Compte 
         SET statut ='banni'
+        WHERE id= ?";
+        $stmt =$this->pdo->prepare($sql);
+        return $stmt->execute([$id]);
+    }
+    public function debannir($id){
+        $sql="UPDATE". PREFIXE_TABLE . " Compte 
+        SET statut ='actif'
         WHERE id= ?";
         $stmt =$this->pdo->prepare($sql);
         return $stmt->execute([$id]);

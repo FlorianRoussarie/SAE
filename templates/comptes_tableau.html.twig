@@ -1,11 +1,19 @@
-{% for compte in comptes %}
-<tr>
-    <td>{{ compte.pseudo }}</td>
-    <td>
-        <form action="index.php?controleur=compte&methode=bannir" method="POST" onsubmit="return confirm('Voulez-vous vraiment bannir cet utilisateur ?');" style="display:inline;">
-            <input type="hidden" name="id" value="{{ compte.id }}">
-            <button type="submit" class="btn btn-danger btn-sm">Bannir</button>
-        </form>
-    </td>
-</tr>
-{% endfor %}
+{% extends "base_template.html.twig" %}
+{% block content %}
+    <div>
+    <h2> Gestion des comptes</h2>
+        {# formulaire permettant de bannir et debannir tous les utilisateurs via la saisie un id#}
+        <div>
+            <form action="index.php?controleur=compte&methode=bannir" method="POST" onsubmit="return confirm('Voulez-vous vraiment bannir cet utilisateur ?');">
+                <input type="number" id="id" name="id" min="1" placeholder="Exemple: 2">
+                <button type="submit">Bannir</button>
+            </form>
+        </div>
+        <div>
+            <form action="index.php?controleur=compte&methode=debannir" method="POST" onsubmit="return confirm('Voulez-vous vraiment debannir cet utilisateur ?');">
+                <input type="number" id="id" name="id" min="1" placeholder="Exemple: 2">
+                <button type="submit">Debannir</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

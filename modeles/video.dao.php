@@ -42,6 +42,11 @@ class VideoDAO{
             (int) $donnees["id_auteur"]
         );
     }
+    public function obtenirTousLesComptes() {
+        $sql = "SELECT * FROM " . PREFIXE_TABLE . "Compte";
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_CLASS, 'Compte'); 
+    }
 }
 
 ?>
