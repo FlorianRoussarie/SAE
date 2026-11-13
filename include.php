@@ -8,8 +8,13 @@
  * Chaque nouveau fichier de classe doit être ajouté ici avec require_once.
  */
 
-//Démarrage de la session (avant tout affichage) : utilisée par la connexion (US02)
+//Démarrage de la session (avant tout affichage)
 session_start();
+
+//Le formulaire de déconnexion utilise un jeton propre à la session connectée.
+if (isset($_SESSION['id_compte']) && !isset($_SESSION['csrf_deconnexion'])) {
+    $_SESSION['csrf_deconnexion'] = bin2hex(random_bytes(32));
+}
 
 //Ajout de l'autoload de composer
 require_once __DIR__ . '/vendor/autoload.php';
