@@ -20,10 +20,13 @@ class ControllerVideo extends Controller{
      * @brief Affiche la page d'une vidéo, avec la vidéo suivante pour le défilement.
      * @details Paramètre GET facultatif id_video : la vidéo à afficher.
      * S'il est absent ou invalide, une vidéo est tirée au hasard.
+     * Page réservée aux comptes connectés.
      * @return void
      */
     public function afficher(): void
     {
+        $this->verifierConnexion();
+
         $idVideo = filter_input(INPUT_GET, 'id_video', FILTER_VALIDATE_INT);
         $managerVideo = new VideoDAO($this->getPdo());
 
