@@ -12,6 +12,13 @@
                 <source src="{{ video.cheminVideo }}" type="video/mp4">
                 Votre navigateur ne supporte pas la lecture vidéo.
             </video>
+
+            {% if videoSuivante is not null %}
+                <div class="my-3">
+                    <a class="btn btn-primary"
+                       href="index.php?controleur=video&amp;methode=afficher&amp;id_video={{ videoSuivante.id }}">Vidéo suivante</a>
+                </div>
+            {% endif %}
         </div>
     {% else %}
         <p>Aucune vidéo disponible pour le moment.</p>
