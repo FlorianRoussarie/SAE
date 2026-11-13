@@ -4,8 +4,12 @@
 
 {% block content %}
     {% if session.id_compte is defined %}
-        <a class="btn btn-primary my-3" href="index.php?controleur=video&amp;methode=publier">Publier une vidéo</a>
+        <a class="btn btn-primary my-3"
+           href="index.php?controleur=video&amp;methode=publier">
+            Publier une vidéo
+        </a>
     {% endif %}
+
     {% if video is not null %}
         <div class="video-container">
             <h2>{{ video.titre }}</h2>
@@ -21,6 +25,15 @@
                 {% endif %}
                 Votre navigateur ne supporte pas la lecture vidéo.
             </video>
+
+            {% if videoSuivante is not null %}
+                <div class="my-3">
+                    <a class="btn btn-primary"
+                       href="index.php?controleur=video&amp;methode=afficher&amp;id_video={{ videoSuivante.id }}">
+                        Vidéo suivante
+                    </a>
+                </div>
+            {% endif %}
         </div>
     {% else %}
         <p>Aucune vidéo disponible pour le moment.</p>
