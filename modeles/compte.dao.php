@@ -111,17 +111,43 @@ class CompteDao
     }
 
     public function bannir($id){
+        $sqlcheck="SELECT est_admin,statut FROM". PREFIXE_TABLE . " Compte 
+        WHERE id= ?";
+        $stmtcheck =$this->pdo->prepare($sqlcheck);
+        $stmtcheck->execute([$id]);
+        $compte=$stmtcheck->fetch(PDO::FETCH_ASSOC);
+        if($compte===false){
+            throw new Exception("aucun utilisateur ne possede cet id");
+        }
+        if((int)$compte['est_admin']===1)
+            {throw new Exception("Impossible de bannir un autre administrateur");}
+        if($compte['statut']==='banni')
+            {throw new Exception("Ce compte est déja banni");}
+
         $sql="UPDATE". PREFIXE_TABLE . " Compte 
         SET statut ='banni'
         WHERE id= ?";
         $stmt =$this->pdo->prepare($sql);
-        return $stmt->execute([$id]);
+        $stmt->execute([$id]);
+        return true;
     }
     public function debannir($id){
+        $sqlcheck="SELECT est_admin,statut FROM". PREFIXE_TABLE . " Compte 
+        WHERE id= ?";
+        $stmtcheck =$this->pdo->prepare($sqlcheck);
+        $stmtcheck->execute([$id]);
+         $compte=$stmtcheck->fetch(PDO::FETCH_ASSOC);
+        if($compte===false){
+            throw new Exception("aucun utilisateur ne possede cet id");
+        }
+        if($compte['statut']==='actif')
+            {throw new Exception("Ce compte est actif(déja débanni)");
+            }
         $sql="UPDATE". PREFIXE_TABLE . " Compte 
         SET statut ='actif'
         WHERE id= ?";
         $stmt =$this->pdo->prepare($sql);
-        return $stmt->execute([$id]);
+        $stmt->execute([$id]);
+        return true;
     }
 }

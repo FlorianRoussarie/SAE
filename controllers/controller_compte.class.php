@@ -324,11 +324,16 @@ class ControllerCompte extends Controller
         if($id==null|| $id == false){
             throw new Exception("Identifiant de compte invalide."); 
         }
+        try{
         $managerCompte =new CompteDAO($this->getPdo());
         $managerCompte->bannir($id);  
         // Redirige vers la liste des compte après le signalement
          header('Location: index.php?controleur=compte&methode=lister');
             exit();
+        }catch(Exception $e){
+            echo $e->getMessage();
+            echo"<br> <a href='index.php?controleur=compte&methode=lister'> Retour à la gestion des comptes</a>";
+        }
     }
     //Permet de bannir un utilisateur ciblé "
     public function debannir() {
@@ -350,11 +355,16 @@ class ControllerCompte extends Controller
         if($id==null|| $id == false){
             throw new Exception("Identifiant de compte invalide."); 
         }
+        try{
         $managerCompte =new CompteDAO($this->getPdo());
-        $managerCompte->debannir($id);  
+        $managerCompte->debannir($id); 
         // Redirige vers la liste des compte après le signalement
          header('Location: index.php?controleur=compte&methode=lister');
             exit();
+        }catch(Exception $e){
+            echo $e->getMessage();
+            echo "<br> <a href='index.php?controleur=compte&methode=lister'> Retour à la gestion des comptes</a>";
+        }
     }
     /*
     * Affiche  un formulaire qui permet de bannir un utilisateur *
