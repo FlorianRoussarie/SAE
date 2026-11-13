@@ -1,0 +1,11 @@
+{% for compte in comptes %}
+<tr>
+    <td>{{ compte.pseudo }}</td>
+    <td>
+        <form action="index.php?controleur=compte&methode=bannir" method="POST" onsubmit="return confirm('Voulez-vous vraiment bannir cet utilisateur ?');" style="display:inline;">
+            <input type="hidden" name="id" value="{{ compte.id }}">
+            <button type="submit" class="btn btn-danger btn-sm">Bannir</button>
+        </form>
+    </td>
+</tr>
+{% endfor %}

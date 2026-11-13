@@ -1,0 +1,19 @@
+{% extends 'base_template.html.twig' %}
+
+{% block title %}Video - SHARE{% endblock %}
+
+{% block content %}
+    {% if video is not null %}
+        <div class="video-container">
+            <h2>{{ video.titre }}</h2>
+            <p>{{ video.description }}</p>
+
+            <video controls width="640" preload="metadata">
+                <source src="{{ video.cheminVideo }}" type="video/mp4">
+                Votre navigateur ne supporte pas la lecture vidéo.
+            </video>
+        </div>
+    {% else %}
+        <p>Aucune vidéo disponible pour le moment.</p>
+    {% endif %}
+{% endblock %}
