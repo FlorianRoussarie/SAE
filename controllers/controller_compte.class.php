@@ -1,5 +1,5 @@
 <?php
-/** @brief Affichage et traitement de l'inscription (US01) et de la connexion (US02) des comptes SHARE. */
+/** @brief Inscription, connexion et déconnexion des comptes SHARE. */
 class ControllerCompte extends Controller
 {
     private const MOTIF_NOM = '\p{L}[\p{L}\p{M}]*(?:(?:[ \'’]|-{1,2})\p{L}[\p{L}\p{M}]*)*';
@@ -253,6 +253,46 @@ class ControllerCompte extends Controller
         $this->afficherFormulaireConnexion($erreurs, array('adresse_mail' => $adresseMail));
     }
 
+    /**
+     * @brief Termine la session du compte après validation du formulaire POST et du jeton CSRF.
+     * @return void
+     */
+    public function deconnecter(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            header('Allow: POST');
+            http_response_code(405);
+            echo 'La déconnexion nécessite une requête POST.';
+            return;
+        }
+
+        $this->verifierConnexion();
+        $jetonRecu = $this->getPost()['csrf_deconnexion'] ?? null;
+        $jetonSession = $_SESSION['csrf_deconnexion'] ?? null;
+        if (!is_string($jetonRecu) || !is_string($jetonSession) || !hash_equals($jetonSession, $jetonRecu)) {
+            http_response_code(403);
+            echo 'Jeton de déconnexion invalide.';
+            return;
+        }
+
+        $_SESSION = array();
+        if (ini_get('session.use_cookies')) {
+            $parametresCookie = session_get_cookie_params();
+            setcookie(session_name(), '', array(
+                'expires' => time() - 3600,
+                'path' => $parametresCookie['path'],
+                'domain' => $parametresCookie['domain'],
+                'secure' => $parametresCookie['secure'],
+                'httponly' => $parametresCookie['httponly'],
+                'samesite' => $parametresCookie['samesite']
+            ));
+        }
+        session_destroy();
+
+        header('Location: index.php?controleur=compte&methode=afficherFormulaireConnexion', true, 303);
+        exit;
+    }
+
     /** @brief Retourne la date de naissance la plus récente autorisée à l'inscription. */
     private function getDateNaissanceMax(): string
     {
@@ -264,4 +304,78 @@ class ControllerCompte extends Controller
         }
         return $dateLimite->format('Y-m-d');
     }
-}
+    //Permet de bannir un utilisateur ciblé "
+    public function bannir() {
+        if(($_SERVER['REQUEST_METHOD']??'')!== 'POST'){
+            throw new Exception('Méthode non autorisé');
+        }
+        //Vérifiaction que l'utilisateur est bien un administrateur
+        if(!isset($_SESSION['id_compte'])
+            ||(int) ($_SESSION['est_admin']??0) !==1){
+         throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
+         }
+        //Récuparation de l'ID de l'utilisateur
+        $id=filter_input(
+            INPUT_POST,
+            'id',
+            FILTER_VALIDATE_INT,
+            array('options' => array('min_range'=> 1))
+        );
+        if($id==null|| $id == false){
+            throw new Exception("Identifiant de compte invalide."); 
+        }
+        try{
+        $managerCompte =new CompteDAO($this->getPdo());
+        $managerCompte->bannir($id);  
+        // Redirige vers la liste des compte après le signalement
+         header('Location: index.php?controleur=compte&methode=lister');
+            exit();
+        }catch(Exception $e){
+            echo $e->getMessage();
+            echo"<br> <a href='index.php?controleur=compte&methode=lister'> Retour à la gestion des comptes</a>";
+        }
+    }
+    //Permet de bannir un utilisateur ciblé "
+    public function debannir() {
+        if(($_SERVER['REQUEST_METHOD']??'')!== 'POST'){
+            throw new Exception('Méthode non autorisé');
+        }
+        //Vérifiaction que l'utilisateur est bien un administrateur
+        if(!isset($_SESSION['id_compte'])
+            ||(int) ($_SESSION['est_admin']??0) !==1){
+         throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
+         }
+        //Récuparation de l'ID de l'utilisateur
+        $id=filter_input(
+            INPUT_POST,
+            'id',
+            FILTER_VALIDATE_INT,
+            array('options' => array('min_range'=> 1))
+        );
+        if($id==null|| $id == false){
+            throw new Exception("Identifiant de compte invalide."); 
+        }
+        try{
+        $managerCompte =new CompteDAO($this->getPdo());
+        $managerCompte->debannir($id); 
+        // Redirige vers la liste des compte après le signalement
+         header('Location: index.php?controleur=compte&methode=lister');
+            exit();
+        }catch(Exception $e){
+            echo $e->getMessage();
+            echo "<br> <a href='index.php?controleur=compte&methode=lister'> Retour à la gestion des comptes</a>";
+        }
+    }
+    /*
+    * Affiche  un formulaire qui permet de bannir un utilisateur *
+    */
+    public function lister(){
+         //Vérifiaction que l'utilisateur est bien un administrateur
+        if(!isset($_SESSION['id_compte'])
+            ||(int) ($_SESSION['est_admin']??0) !==1){
+         throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
+         }
+         $template=$this->getTwig()->load('comptes_tableau.html.twig');
+         echo $template->render(array());
+    }
+    }
