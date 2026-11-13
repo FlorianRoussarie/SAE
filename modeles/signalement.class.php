@@ -8,8 +8,13 @@ class Signalement {
     private int|null $id_auteur;
     private int|null $id_cible;
     private int|null $id_video;
+    //private Compte|null $auteur;
+    //private Compte|null $cible;
+    //private Video|null $video;
 
-    public function __construct(?int $id = null, ?string $raison = null, ?string $date = null, ?string $statut = null, ?int $id_auteur = null, ?int $id_cible = null,?int $id_video = null) {
+    public function __construct(?int $id = null, ?string $raison = null, ?string $date = null, ?string $statut = null, 
+                                ?int $id_auteur = null, ?int $id_cible = null,?int $id_video = null/*, 
+                                ?Compte $cible, ?Compte $auteur, ?Video $video*/) {
 
         $this->id = $id;
         $this->raison = $raison;
@@ -18,11 +23,11 @@ class Signalement {
         $this->id_auteur = $id_auteur;
         $this->id_cible = $id_cible;
         $this->id_video = $id_video;
-
-
+        //$this->video = 
     }
 
     public function getId(): ?int { return $this->id; }
+    //setId est pas utilisé à priori vu que c'est un auto incrément
     public function setId(?int $id): void { $this->id = $id; } 
     public function getRaison(): ?string { return $this->raison; }
     public function setRaison(?string $raison): void { $this->raison = $raison; } 

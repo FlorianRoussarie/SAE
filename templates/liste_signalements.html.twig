@@ -1,5 +1,5 @@
 {% extends 'base_template.html.twig' %}
-    {% block title %}Liste des signalements - {{ constant('WEBSITE_TITLE')}} {% endblock %}
+    {% block title %}Liste des signalements - SHARE {% endblock %}
 
 {% block content %}
     <main>
@@ -10,6 +10,7 @@
                     <th>Signalement n°</th>
                     <th>Cible</th>
                     <th>Raison</th>
+                    <th>Date</th>
                     <th>Vidéo</th>
                     <th>Auteur</th>
                     <th>Statut</th>
@@ -20,12 +21,12 @@
                 {% for signalement in signalements %}           
 
                     <tr>
-                        <td><a href="index.php?controleur=signalement&methode=lister&id={{signalement.id}}">{{signalement.id}}</a></td>
-                        <td>{{signalement.id_cible}}</td>
+                        <td><a href="index.php?controleur=signalement&methode=afficher&id={{signalement.id}}">{{signalement.id}}</a></td>
+                        <td>{% if signalement.id_cible != null %} {{signalement.id_cible}} {% else %} Aucune cible {% endif %}</td>
                         <td>{{signalement.raison}}</td>
                         <td>{{signalement.date}}</td>
                         <td>{% if signalement.id_video != null %} {{signalement.id_video}} {% else %} Aucune vidéo liée {% endif %}</td>
-                        <td>{{signalement.id_auteur}}</td>
+                        <td>{% if signalement.id_auteur != null %} {{signalement.id_auteur}} {% else %} Aucun auteur {% endif %}</td>
                         <td>{{signalement.statut}}</td>
                     </tr>
 
