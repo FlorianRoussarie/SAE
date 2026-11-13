@@ -1,0 +1,17 @@
+{% extends 'base_template.html.twig' %}
+    {% block title %}Signalement n°{{signalement.id}} - SHARE{% endblock %}
+
+    {% block content %}
+        <main>
+            <h1>Signalement n°{{signalement.id}}</h1>
+    <!--                Affichage de la description de la recette et de l'image-->
+            <div class="row">
+                <div class="col-md-9">
+                    <h2>Effectué le {{ signalement.date }} par utilisateur n°{{ signalement.id_auteur }}</h2><br>
+                    <h2>Utilisateur signalé: {{ signalement.id_cible }}</h2><br><br><br>
+                    <h3>vidéo: {% if signalement.id_video != null %} {{signalement.id_video}} {% else %} Aucune vidéo liée {% endif %}</h3><br><br>
+                    <h3>raison du signalement: {{ signalement.raison }}</h3>
+                </div>            
+            </div>            
+        </main>
+    {% endblock %}

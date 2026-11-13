@@ -8,20 +8,21 @@ class ControllerSignalement extends Controller {
     }
 
     //affichage d'un seul signalement
-    /*public function afficher(){
+    public function afficher(){
         $id_signalement = isset($_GET['id'])?$_GET['id']:null;
         $managerSignalement = new SignalementDao($this->getPdo());
-        $signalement = $managerSignalement->find($id_signalement);
-        $template = $this->getTwig()->load('liste_signalements.html.twig');
+        $signalement = $managerSignalement->findAssoc($id_signalement);
+        $template = $this->getTwig()->load('signalement.html.twig');
         echo $template->render(array(
                 'signalement' => $signalement,
+                'menu' => 'signalement'
             ));
-    }*/
+    }
 
     //liste des signalements
     public function lister() {
         $managerSignalement = new SignalementDao($this->getPdo());
-        $signalements = $managerSignalement->findAll();
+        $signalements = $managerSignalement->findAllAssoc();
         $template = $this->getTwig()->load('liste_signalements.html.twig');
         echo $template->render(array(
                 'signalements' => $signalements,
