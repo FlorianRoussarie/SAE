@@ -109,5 +109,4 @@ class CompteDao
             throw $e;
         }
     }
-
 }
