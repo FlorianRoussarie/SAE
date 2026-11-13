@@ -304,4 +304,78 @@ class ControllerCompte extends Controller
         }
         return $dateLimite->format('Y-m-d');
     }
-}
+    //Permet de bannir un utilisateur ciblé "
+    public function bannir() {
+        if(($_SERVER['REQUEST_METHOD']??'')!== 'POST'){
+            throw new Exception('Méthode non autorisé');
+        }
+        //Vérifiaction que l'utilisateur est bien un administrateur
+        if(!isset($_SESSION['id_compte'])
+            ||(int) ($_SESSION['est_admin']??0) !==1){
+         throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
+         }
+        //Récuparation de l'ID de l'utilisateur
+        $id=filter_input(
+            INPUT_POST,
+            'id',
+            FILTER_VALIDATE_INT,
+            array('options' => array('min_range'=> 1))
+        );
+        if($id==null|| $id == false){
+            throw new Exception("Identifiant de compte invalide."); 
+        }
+        try{
+        $managerCompte =new CompteDAO($this->getPdo());
+        $managerCompte->bannir($id);  
+        // Redirige vers la liste des compte après le signalement
+         header('Location: index.php?controleur=compte&methode=lister');
+            exit();
+        }catch(Exception $e){
+            echo $e->getMessage();
+            echo"<br> <a href='index.php?controleur=compte&methode=lister'> Retour à la gestion des comptes</a>";
+        }
+    }
+    //Permet de bannir un utilisateur ciblé "
+    public function debannir() {
+        if(($_SERVER['REQUEST_METHOD']??'')!== 'POST'){
+            throw new Exception('Méthode non autorisé');
+        }
+        //Vérifiaction que l'utilisateur est bien un administrateur
+        if(!isset($_SESSION['id_compte'])
+            ||(int) ($_SESSION['est_admin']??0) !==1){
+         throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
+         }
+        //Récuparation de l'ID de l'utilisateur
+        $id=filter_input(
+            INPUT_POST,
+            'id',
+            FILTER_VALIDATE_INT,
+            array('options' => array('min_range'=> 1))
+        );
+        if($id==null|| $id == false){
+            throw new Exception("Identifiant de compte invalide."); 
+        }
+        try{
+        $managerCompte =new CompteDAO($this->getPdo());
+        $managerCompte->debannir($id); 
+        // Redirige vers la liste des compte après le signalement
+         header('Location: index.php?controleur=compte&methode=lister');
+            exit();
+        }catch(Exception $e){
+            echo $e->getMessage();
+            echo "<br> <a href='index.php?controleur=compte&methode=lister'> Retour à la gestion des comptes</a>";
+        }
+    }
+    /*
+    * Affiche  un formulaire qui permet de bannir un utilisateur *
+    */
+    public function lister(){
+         //Vérifiaction que l'utilisateur est bien un administrateur
+        if(!isset($_SESSION['id_compte'])
+            ||(int) ($_SESSION['est_admin']??0) !==1){
+         throw new Exception("Accès non autorisé : cett action est réservé aux adminsitrateurs"); 
+         }
+         $template=$this->getTwig()->load('comptes_tableau.html.twig');
+         echo $template->render(array());
+    }
+    }
