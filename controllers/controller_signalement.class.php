@@ -15,7 +15,7 @@ class ControllerSignalement extends Controller {
          }
         $id_signalement = isset($_GET['id'])?$_GET['id']:null;
         $managerSignalement = new SignalementDao($this->getPdo());
-        $signalement = $managerSignalement->findAssoc($id_signalement);
+        $signalement = $managerSignalement->find($id_signalement);
         $template = $this->getTwig()->load('signalement.html.twig');
         echo $template->render(array(
                 'signalement' => $signalement,
@@ -30,7 +30,7 @@ class ControllerSignalement extends Controller {
          throw new Exception("Accès non autorisé : cette page est réservée aux adminsitrateurs"); 
          }
         $managerSignalement = new SignalementDao($this->getPdo());
-        $signalements = $managerSignalement->findAllAssoc();
+        $signalements = $managerSignalement->findAll();
         $template = $this->getTwig()->load('liste_signalements.html.twig');
         echo $template->render(array(
                 'signalements' => $signalements,
