@@ -258,4 +258,58 @@ class ControllerVideo extends Controller
 
         return null;
     }
+
+    public function supprimer(): void
+    {
+        $this->verifierConnexion();
+
+        if ((int) ($_SESSION['est_admin'] ?? 0) !== 1) {
+            http_response_code(403);
+            throw new Exception("Accès réservé aux administrateurs.");
+        }
+
+        if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
+            http_response_code(405);
+            throw new Exception("Méthode non autorisée.");
+        }
+
+        $post = $this->getPost() ?? array();
+
+        $idVideo = filter_var(
+            $post["id_video"] ?? null, 
+            FILTER_VALIDATE_INT,
+            array('options' => array('min_range' => 1))
+        );
+
+        if ($idVideo === false) {
+            throw new Exception("Identifiant de vidéo invalide.");
+        }
+
+        $jetonRecu = $post['csrf_suppression'] ?? null;
+        $jetonSession = $_SESSION['csrf_suppression'] ?? null;
+
+        if (!is_string($jetonSession)
+            || !is_string($jetonRecu)
+            || !hash_equals($jetonSession, $jetonRecu)) 
+        {
+            http_response_code(403);
+            throw new Exception("Jeton de sécurité invalide.");
+        }
+
+        $managerVideo = new VideoDAO($this->getPdo());
+        $supprimee = $managerVideo->supprimer($idVideo);
+
+        if (!$supprimee) {
+            throw new Exception("Video introuvable.");
+        }
+
+        unset($_SESSION['csrf_suppression']);
+
+        header(
+            'Location: index.php?controleur=video&methode=afficher',
+            true,
+            303
+        );
+        exit;
+    }
 }

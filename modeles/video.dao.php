@@ -114,6 +114,18 @@ class VideoDAO
             ':id_auteur' => $video->getIdAuteur()
         ));
     }
+
+    public function supprimer(int $id): bool
+    {
+        $sql = "DELETE FROM " . PREFIXE_TABLE . "Video
+                WHERE id = :id";
+        
+        $stmt = $this->pdo->prepare($sql);
+
+        $stmt->execute(array(":id"=> $id));
+
+        return $stmt->rowCount() > 0;
+    }
 }
 
 ?>
