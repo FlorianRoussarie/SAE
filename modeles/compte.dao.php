@@ -131,6 +131,7 @@ class CompteDao
         $stmt->execute([$id]);
         return true;
     }
+  
     public function debannir($id){
         $sqlcheck="SELECT est_admin,statut FROM". PREFIXE_TABLE . " Compte 
         WHERE id= ?";
