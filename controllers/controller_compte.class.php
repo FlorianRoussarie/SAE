@@ -378,4 +378,4 @@ class ControllerCompte extends Controller
          $template=$this->getTwig()->load('comptes_tableau.html.twig');
          echo $template->render(array());
     }
-    }
+}

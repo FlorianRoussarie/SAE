@@ -282,6 +282,7 @@ class ControllerVideo extends Controller
         );
 
         if ($idVideo === false) {
+            http_response_code(400);
             throw new Exception("Identifiant de vidéo invalide.");
         }
 
