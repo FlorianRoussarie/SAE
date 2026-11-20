@@ -25,11 +25,8 @@ class SignalementDao {
                 ORDER BY S.date DESC, S.id DESC ";
         $pdoStatement = $this->pdo->prepare($sql);
         $pdoStatement->execute(array("id" => $id));
-        return $pdoStatement->fetchAll(PDO::FETCH_ASSOC);
-        /*$pdo_statement = $this->pdo->prepare($sql);
-        $pdo_statement->execute(array("id" => $id));
-        $pdo_statement->setFetchMode(PDO::FETCH_CLASS | PDO::FETCH_PROPS_LATE, 'Signalement');
-        return $pdo_statement->fetch();*/
+        return $pdoStatement->fetch();
+        
     }
    
     public function findAll(): array
@@ -73,4 +70,16 @@ class SignalementDao {
         }
         return $signalements;
     }
+
+    /*public function traiterSignalement($action, $id_cible) {
+        if ($action = "bannir") {
+            bannir($id_cible);
+        }
+        if ($action = "signaler") {
+
+        }
+        if ($action = "ignorer") {
+
+        }
+    }*/
 }

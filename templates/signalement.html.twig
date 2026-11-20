@@ -8,9 +8,13 @@
             <div class="row">
                 <div class="col-md-9">
                     <h2>Effectué le {{ signalement.date|date('d/m/Y H:i')}} par {{ signalement.pseudo_auteur }}</h2><br>
-                    <h2>Utilisateur signalé: {{ signalement.pseudo_cible }}</h2><br><br><br>
+                    <h2>Utilisateur signalé: {{ signalement.pseudo_cible }}</h2><br><br>
                     <h3>Vidéo: {% if signalement.id_video != null %} {{signalement.titre_video}} {% else %} Aucune vidéo liée {% endif %}</h3><br><br>
-                    <h3>raison du signalement: {{ signalement.raison }}</h3>
+                    <h3>raison du signalement: {{ signalement.raison }}</h3><br><br>
+                    <button>Signaler</button>
+                    <button action="bannir({{ signalement.id_cible }})">Bannir</button>
+                    <button>Ignorer</button>
+                    <button>Supprimer la vidéo</button>
                 </div>            
             </div>            
         </main>
