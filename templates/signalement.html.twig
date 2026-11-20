@@ -12,7 +12,7 @@
                     <h3>Vidéo: {% if signalement.id_video != null %} {{signalement.titre_video}} {% else %} Aucune vidéo liée {% endif %}</h3><br><br>
                     <h3>raison du signalement: {{ signalement.raison }}</h3><br><br>
                     <button>Signaler</button>
-                    <button action="bannir({{ signalement.id_cible }})">Bannir</button>
+                    <button>Bannir</button>
                     <button>Ignorer</button>
                     <button>Supprimer la vidéo</button>
                 </div>            

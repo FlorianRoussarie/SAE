@@ -73,7 +73,7 @@ class SignalementDao {
 
     /*public function traiterSignalement($action, $id_cible) {
         if ($action = "bannir") {
-            bannir($id_cible);
+            
         }
         if ($action = "signaler") {
 
