@@ -1,0 +1,41 @@
+{% extends 'base_template.html.twig' %}
+    {% block title %}Liste des signalements - SHARE {% endblock %}
+
+{% block content %}
+    <main>
+        <h1>Signalements</h1>
+
+        <table id="matable" class="table table-striped table-hover">
+            <thead>
+                <tr>
+                    <th>Signalement n°</th>
+                    <th>Cible</th>
+                    <th>Raison</th>
+                    <th>Date</th>
+                    <th>Vidéo</th>
+                    <th>Auteur</th>
+                    <th>Statut</th>
+
+                </tr>
+            </thead>
+            <tbody>
+                {% for signalement in signalements %}           
+
+                    <tr>
+                        <td><a href="index.php?controleur=signalement&methode=afficher&id={{signalement.id}}">{{signalement.id}}</a></td>
+                        <td>{{signalement.pseudo_cible}}</td>
+                        <td>{{signalement.raison}}</td>
+                        <td>{{signalement.date|date('d/m/Y H:i')}}</td>
+                        <td>{% if signalement.titre_video != null %} {{signalement.titre_video}} {% else %} Aucune vidéo liée {% endif %}</td>
+                        <td>{{signalement.pseudo_auteur}}</td>
+                        <td>{{signalement.statut}}</td>
+                        {#{{ dump(signalement) }}#}
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+        </table>
+    </main>
+{% endblock %}
+
