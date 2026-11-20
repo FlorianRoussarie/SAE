@@ -14,7 +14,14 @@
                     <button>Signaler</button>
                     <button>Bannir</button>
                     <button>Ignorer</button>
-                    <button>Supprimer la vidéo</button>
+                    {% if signalement.id_video != null %}
+                        <form method="post" action="index.php?controleur=video&methode=supprimer" onsubmit="return confirm('Supprimer cette vidéo ?');">
+                            <input type="hidden" name="id_video" value="{{ signalement.id_video }}">
+                            <input type="hidden" name="id_signalement" value="{{ signalement.id }}">
+                            <input type="hidden" name="csrf_suppression" value="{{ jetonSuppression }}">
+                            <button type="submit">Supprimer la vidéo</button>
+                        </form>
+                    {% endif %}
                 </div>            
             </div>            
         </main>

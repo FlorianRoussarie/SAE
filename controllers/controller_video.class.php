@@ -297,6 +297,12 @@ class ControllerVideo extends Controller
             throw new Exception("Jeton de sécurité invalide.");
         }
 
+        $idSignalement = filter_var(
+            $post['id_signalement'] ?? null,
+            FILTER_VALIDATE_INT,
+            array('options' => array('min_range' => 1))
+        );
+
         $managerVideo = new VideoDAO($this->getPdo());
         $supprimee = $managerVideo->supprimer($idVideo);
 
@@ -306,11 +312,13 @@ class ControllerVideo extends Controller
 
         unset($_SESSION['csrf_suppression']);
 
-        header(
-            'Location: index.php?controleur=video&methode=afficher',
-            true,
-            303
-        );
+        if ($idSignalement !== false) {
+            $destination = 'index.php?controleur=signalement&methode=afficher&id=' . $idSignalement;
+        } else {
+            $destination = 'index.php?controleur=video&methode=afficher';
+        }
+
+        header('Location: ' . $destination, true, 303);
         exit;
     }
 }

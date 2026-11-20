@@ -16,10 +16,12 @@ class ControllerSignalement extends Controller {
         $id_signalement = isset($_GET['id'])?$_GET['id']:null;
         $managerSignalement = new SignalementDao($this->getPdo());
         $signalement = $managerSignalement->find($id_signalement);
+        $_SESSION['csrf_suppression'] ??= bin2hex(random_bytes(32));
         $template = $this->getTwig()->load('signalement.html.twig');
         echo $template->render(array(
                 'signalement' => $signalement,
-                'menu' => 'signalement'
+                'menu' => 'signalement',
+                'jetonSuppression' => $_SESSION['csrf_suppression']
             ));
     }
 
